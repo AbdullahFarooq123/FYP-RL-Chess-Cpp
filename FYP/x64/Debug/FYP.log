@@ -1,0 +1,18 @@
+﻿  Engine.cpp
+  Player.cpp
+C:\Users\hp\source\repos\FYP\FYP\Player.cpp(170): warning C4554: '<<': check operator precedence for possible error; use parentheses to clarify precedence
+C:\Users\hp\source\repos\FYP\FYP\Player.cpp(173): warning C4554: '<<': check operator precedence for possible error; use parentheses to clarify precedence
+C:\Users\hp\source\repos\FYP\FYP\Player.cpp(178): warning C4244: 'argument': conversion from 'double' to 'uint32_t', possible loss of data
+C:\Users\hp\source\repos\FYP\FYP\Player.cpp(267): error C2660: 'Player::can_castle': function does not take 4 arguments
+  C:\Users\hp\source\repos\FYP\FYP\Player.h(35): note: see declaration of 'Player::can_castle'
+C:\Users\hp\source\repos\FYP\FYP\Player.cpp(269): error C2660: 'Player::can_castle': function does not take 4 arguments
+  C:\Users\hp\source\repos\FYP\FYP\Player.h(35): note: see declaration of 'Player::can_castle'
+C:\Users\hp\source\repos\FYP\FYP\Player.cpp(275): error C2660: 'Player::can_castle': function does not take 4 arguments
+  C:\Users\hp\source\repos\FYP\FYP\Player.h(35): note: see declaration of 'Player::can_castle'
+C:\Users\hp\source\repos\FYP\FYP\Player.cpp(277): error C2660: 'Player::can_castle': function does not take 4 arguments
+  C:\Users\hp\source\repos\FYP\FYP\Player.h(35): note: see declaration of 'Player::can_castle'
+  game_pretty.cpp
+C:\Users\hp\source\repos\FYP\FYP\game_pretty.cpp(33): warning C4554: '<<': check operator precedence for possible error; use parentheses to clarify precedence
+C:\Users\hp\source\repos\FYP\FYP\game_pretty.cpp(65): warning C4554: '<<': check operator precedence for possible error; use parentheses to clarify precedence
+  main.cpp
+  Generating Code...

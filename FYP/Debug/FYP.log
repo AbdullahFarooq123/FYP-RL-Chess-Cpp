@@ -1,0 +1,7 @@
+﻿  Engine.cpp
+C:\Users\hp\source\repos\FYP\FYP\Engine.cpp(38): warning C4566: character represented by universal-character-name '\u2654' cannot be represented in the current code page (1252)
+  game_pretty.cpp
+C:\Users\hp\source\repos\FYP\FYP\game_pretty.cpp(33): warning C4554: '<<': check operator precedence for possible error; use parentheses to clarify precedence
+C:\Users\hp\source\repos\FYP\FYP\game_pretty.cpp(63): warning C4554: '<<': check operator precedence for possible error; use parentheses to clarify precedence
+  Generating Code...
+  FYP.vcxproj -> C:\Users\hp\source\repos\FYP\Debug\FYP.exe
