@@ -5,7 +5,7 @@ using namespace std;
 
 Engine::Engine()
 {
-	Fen_utility fen = Fen_utility("5k2/8/8/8/1b6/5n2/3P3P/4K2R w K - 0 11");
+	Fen_utility fen = Fen_utility("5k2/8/8/8/4q3/8/4R1PP/4K3 w - - 0 11");
 	this->board_state = fen.getBitboard();
 	int enpassant_position = fen.get_enpassant();
 	uint64_t white_state = fen.getBitboard(Side::WHITE);
@@ -26,7 +26,6 @@ Engine::Engine()
 	white_player->set_opponent_player(black_player);
 	black_player->set_opponent_player(white_player);
 	init_precalculation_utilities();
-
 }
 
 Engine::~Engine()
@@ -42,4 +41,9 @@ void Engine::run()
 	current_player->generate_moves();
 	current_player->print_moves();
 	this->white_turn = !white_turn;
+}
+
+void Engine::validate_moves(Player* current_player)
+{
+
 }

@@ -14,5 +14,6 @@ private:
 	uint64_t board_state;
 	uint32_t previous_move;
 	bool white_turn;
+	void validate_moves(Player * current_player);
 };
 

@@ -17,7 +17,7 @@ uint32_t Move::encode_move(uint32_t source_square, uint32_t target_square, uint3
 	return source_square | (target_square << 6) | (piece_name << 12) | (promotion_piece_name << 16) | (capture_flag << 20) | (double_push_flag << 21) | (enpassant_flag << 22) | (castle_flag << 23);
 }
 
-int Move::decode_move(uint32_t move, DECODE_ATTRIBUTES attribute_name)
+int Move::decode_move(uint32_t move, MOVE_DECODE_ATTRIBUTES attribute_name)
 {
 	switch (attribute_name)
 	{
@@ -37,6 +37,32 @@ int Move::decode_move(uint32_t move, DECODE_ATTRIBUTES attribute_name)
 		return (move >> 22) & 0b1;
 	case CASTLE_FLAG:
 		return (move >> 23) & 0b1;
+	default:
+		return 0;
+	}
+}
+
+unsigned int Move::encode_check_flag(unsigned int check_count, unsigned int knight_attack, unsigned int attacker_position, unsigned int attacker_piece_name)
+{
+	return (check_count) | (knight_attack << 2) | (attacker_position << 3) | (attacker_piece_name << 8);
+}
+
+unsigned int Move::decode_check_flag(unsigned int check_flag, CHECK_DECODE_ATTRIBUTES attribute_name)
+{
+	switch (attribute_name)
+	{
+	case CHECK:
+		return check_flag & 0b1;
+	case DOUBLE_CHECK:
+		return (check_flag>>1) & 0b1;
+	case BOTH_CHECK:
+		return check_flag & 0b11;
+	case KNIGHT_CHECK:
+		return (check_flag>>3) & 0b1;
+	case ATTACKER_POSITION:
+		return (check_flag>>4) & 0b111111;
+	case ATTACKER_PIECE_NAME:
+		return (check_flag>>10) & 0b111;
 	default:
 		return 0;
 	}
@@ -63,7 +89,7 @@ Iterator Move::begin()
 
 Iterator Move::end()
 {
-	return Iterator(moves+move_index);
+	return Iterator(moves + move_index);
 }
 
 
