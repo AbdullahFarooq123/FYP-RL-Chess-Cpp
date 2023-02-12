@@ -68,6 +68,32 @@ unsigned int Move::decode_check_flag(unsigned int check_flag, CHECK_DECODE_ATTRI
 	}
 }
 
+unsigned int Move::encode_castle_rights(unsigned int W_O_O, unsigned int W_O_O_O, unsigned int B_O_O, unsigned int B_O_O_O)
+{
+	return W_O_O | (W_O_O_O<<1) | (B_O_O << 2) | (B_O_O_O<<3);
+}
+
+unsigned int Move::decode_castle_rights(unsigned int castle_rights, CASTLE_DECODE_ATTRIBUTES attribute_name)
+{
+	switch (attribute_name)
+	{
+	case WHITE_KING_SIDE:
+		return castle_rights & 0b1;
+	case WHITE_QUEEN_SIDE:
+		return (castle_rights >> 1) & 0b1;
+	case BLACK_KING_SIDE:
+		return (castle_rights >> 2) & 0b1;
+	case BLACK_QUEEN_SIDE:
+		return (castle_rights >> 3) & 0b1;
+	case WHITE_BOTH:
+		return castle_rights & 0b11;
+	case BLACK_BOTH:
+		return (castle_rights >> 2) & 0b11;
+	default:
+		return 0;
+	}
+}
+
 void Move::add_move(uint32_t move)
 {
 	moves[move_index++] = move;

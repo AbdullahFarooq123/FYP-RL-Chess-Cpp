@@ -1,5 +1,4 @@
 #include "Fen_utility.h"
-#include "general_utilities.h"
 
 
 string Fen_utility::start_pos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
@@ -56,12 +55,15 @@ int Fen_utility::get_enpassant()
 int Fen_utility::get_castle_rights()
 {
 	string castle_rights = split(fen, ' ')[2];
-	int player_castle_rights = 0;
-	if (castle_rights.find('k') != string::npos)player_castle_rights |= 0b0100;
-	if (castle_rights.find('K') != string::npos)player_castle_rights |= 0b0001;
-	if (castle_rights.find('q') != string::npos)player_castle_rights |= 0b1000;
-	if (castle_rights.find('Q') != string::npos)player_castle_rights |= 0b0010;
-	return player_castle_rights;
+	int white_king_side_rights = 0;
+	int white_queen_side_rights = 0;
+	int black_king_side_rights = 0;
+	int black_queen_side_rights = 0;
+	if (castle_rights.find('k') != string::npos)black_king_side_rights =1;
+	if (castle_rights.find('K') != string::npos)white_king_side_rights = 1;
+	if (castle_rights.find('q') != string::npos)black_queen_side_rights = 1;
+	if (castle_rights.find('Q') != string::npos)white_queen_side_rights = 1;
+	return Move::encode_castle_rights(white_king_side_rights,white_queen_side_rights,black_king_side_rights,black_queen_side_rights);
 }
 
 bool Fen_utility::getSideAndPieceBitmap(Side side, Piece piece, char fen_char)

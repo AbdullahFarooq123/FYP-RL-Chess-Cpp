@@ -25,7 +25,7 @@ void Player::generate_moves()
 	uint64_t opponent_state = (*this->board_state) & (~this->player_state);
 	unsigned int check_flags = 0;
 	uint64_t opponent_attacks = this->get_opponent_attacks(check_flags);
-	uint64_t attackers_ray = (Move::decode_check_flag(check_flags,CHECK_DECODE_ATTRIBUTES::CHECK) ? get_attackers_ray(check_flags) : ~0ull);
+	uint64_t attackers_ray = (Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::CHECK) ? get_attackers_ray(check_flags) : ~0ull);
 	int piece_name = (Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::DOUBLE_CHECK) ? PieceName::KING : PieceName::PAWN);
 	for (; piece_name <= PieceName::KING; piece_name++) {
 		uint64_t piece_bitboard = this->player_pieces_state[piece_name];
@@ -118,7 +118,7 @@ void Player::generate_pawn_moves(uint64_t piece_bitboard, uint64_t opponent_stat
 		uint64_t pawn_attack_map = pawn_attack_maps[this->player_side][piece_position];
 		pawn_attack_map &= opponent_state;
 		pawn_attack_map &= attackers_ray;
-		if (Move::decode_check_flag(check_flags,CHECK_DECODE_ATTRIBUTES::KNIGHT_CHECK)&pawn_attack_map)
+		if (Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::KNIGHT_CHECK) & pawn_attack_map)
 			pawn_attack_map &= bitmask((Positions)Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::ATTACKER_POSITION));
 		while (pawn_attack_map) {
 			int attack_position = get_least_bit_index(pawn_attack_map);
@@ -129,7 +129,7 @@ void Player::generate_pawn_moves(uint64_t piece_bitboard, uint64_t opponent_stat
 				moves.add_move(Move::encode_move(piece_position, attack_position, PAWN, NONE, 1, 0, 0, 0));
 			pawn_attack_map &= pawn_attack_map - 1;
 		}
-		if (~Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::DOUBLE_CHECK)&~Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::KNIGHT_CHECK)) {
+		if (!Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::DOUBLE_CHECK) & !Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::KNIGHT_CHECK)) {
 			//Quite and double push moves
 			uint64_t quite_move = 0ull;
 			uint64_t double_push_move = 0ull;
@@ -160,7 +160,7 @@ void Player::generate_pawn_moves(uint64_t piece_bitboard, uint64_t opponent_stat
 				if (double_push_move) {
 					double_push_move &= attackers_ray;
 					int move_position = get_least_bit_index(double_push_move);
-					if(move_position != -1)
+					if (move_position != -1)
 						moves.add_move(Move::encode_move(piece_position, move_position, PAWN, NONE, 0, 1, 0, 0));
 				}
 			}
@@ -191,8 +191,8 @@ void Player::generate_knight_moves(uint64_t piece_bitboard, uint64_t opponent_st
 		uint64_t knight_attack_map = knight_attack_maps[piece_position];
 		knight_attack_map &= ~this->player_state;
 		knight_attack_map &= attackers_ray;
-		if (check_flags & (bitmask(2)) & knight_attack_map)
-			knight_attack_map &= bitmask((Positions)(check_flags >> 3));
+		if (Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::KNIGHT_CHECK) & knight_attack_map)
+			knight_attack_map &= bitmask((Positions)Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::ATTACKER_POSITION));
 		while (knight_attack_map) {
 			int attack_position = get_least_bit_index(knight_attack_map);
 			bool is_attack_position = opponent_state & bitmask(attack_position);
@@ -210,8 +210,8 @@ void Player::generate_bishop_moves(uint64_t piece_bitboard, uint64_t opponent_st
 		uint64_t bishop_attack_map = get_bishop_attacks(piece_position, *this->board_state);
 		bishop_attack_map &= ~this->player_state;
 		bishop_attack_map &= attackers_ray;
-		if (check_flags & (bitmask(2)) & bishop_attack_map)
-			bishop_attack_map &= bitmask((Positions)(check_flags >> 3));
+		if (Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::KNIGHT_CHECK) & bishop_attack_map)
+			bishop_attack_map &= bitmask((Positions)Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::ATTACKER_POSITION));
 		while (bishop_attack_map) {
 			int attack_position = get_least_bit_index(bishop_attack_map);
 			bool is_attack_position = opponent_state & bitmask(attack_position);
@@ -229,8 +229,8 @@ void Player::generate_rook_moves(uint64_t piece_bitboard, uint64_t opponent_stat
 		uint64_t rook_attack_map = get_rook_attacks(piece_position, *this->board_state);
 		rook_attack_map &= ~this->player_state;
 		rook_attack_map &= attackers_ray;
-		if (check_flags & (bitmask(2)) & rook_attack_map)
-			rook_attack_map &= bitmask((Positions)(check_flags >> 3));
+		if (Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::KNIGHT_CHECK) & rook_attack_map)
+			rook_attack_map &= bitmask((Positions)Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::ATTACKER_POSITION));
 		while (rook_attack_map) {
 			int attack_position = get_least_bit_index(rook_attack_map);
 			bool is_attack_position = opponent_state & bitmask(attack_position);
@@ -248,8 +248,8 @@ void Player::generate_queen_moves(uint64_t piece_bitboard, uint64_t opponent_sta
 		uint64_t queen_attack_map = get_bishop_attacks(piece_position, *this->board_state) | get_rook_attacks(piece_position, *this->board_state);
 		queen_attack_map &= ~this->player_state;
 		queen_attack_map &= attackers_ray;
-		if (check_flags & (bitmask(2)) & queen_attack_map)
-			queen_attack_map &= bitmask((Positions)(check_flags >> 3));
+		if (Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::KNIGHT_CHECK) & queen_attack_map)
+			queen_attack_map &= bitmask((Positions)Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::ATTACKER_POSITION));
 		while (queen_attack_map) {
 			int attack_position = get_least_bit_index(queen_attack_map);
 			bool is_attack_position = opponent_state & bitmask(attack_position);
@@ -268,6 +268,7 @@ void Player::generate_king_moves(uint64_t piece_bitboard, uint64_t opponent_stat
 		uint64_t piece_position_mask = bitmask(piece_position);
 		uint64_t king_attack_map = king_attack_maps[piece_position];
 		king_attack_map &= ~this->player_state;
+		king_attack_map &= ~opponent_attacks;
 		piece_bitboard &= piece_bitboard - 1;
 		while (king_attack_map) {
 			int attack_position = get_least_bit_index(king_attack_map);
@@ -275,21 +276,21 @@ void Player::generate_king_moves(uint64_t piece_bitboard, uint64_t opponent_stat
 			moves.add_move(Move::encode_move(piece_position, attack_position, KING, NONE, is_attack_position, 0, 0, 0));
 			king_attack_map &= king_attack_map - 1;
 		}
-		if (!(check_flags & 0x11)) {
+		if (!Move::decode_check_flag(check_flags, (CHECK_DECODE_ATTRIBUTES)(CHECK_DECODE_ATTRIBUTES::CHECK | CHECK_DECODE_ATTRIBUTES::DOUBLE_CHECK))) {
 			switch (player_side) {
 			case WHITE:
-				if (castling_rights & 0b0011) {
-					if (this->can_castle(0b0001, white_king_side_castle_occupancy, opponent_attacks, piece_position_mask))
+				if (Move::decode_castle_rights(castling_rights,(CASTLE_DECODE_ATTRIBUTES)(CASTLE_DECODE_ATTRIBUTES::WHITE_KING_SIDE|CASTLE_DECODE_ATTRIBUTES::WHITE_QUEEN_SIDE))) {
+					if (this->can_castle(CASTLE_DECODE_ATTRIBUTES::WHITE_KING_SIDE, white_king_side_castle_occupancy, opponent_attacks, piece_position_mask))
 						moves.add_move(Move::encode_move(piece_position, g1, KING, NONE, 0, 0, 0, 1));
-					if (this->can_castle(0b0010, white_queen_side_castle_occupancy, opponent_attacks, piece_position_mask))
+					if (this->can_castle(CASTLE_DECODE_ATTRIBUTES::WHITE_QUEEN_SIDE, white_queen_side_castle_occupancy, opponent_attacks, piece_position_mask))
 						moves.add_move(Move::encode_move(piece_position, c1, KING, NONE, 0, 0, 0, 1));
 				}
 				break;
 			case BLACK:
-				if (castling_rights & 0b1100) {
-					if (this->can_castle(0b0100, black_king_side_castle_occupancy, opponent_attacks, piece_position_mask))
+				if (Move::decode_castle_rights(castling_rights, (CASTLE_DECODE_ATTRIBUTES)(CASTLE_DECODE_ATTRIBUTES::BLACK_KING_SIDE | CASTLE_DECODE_ATTRIBUTES::BLACK_QUEEN_SIDE))) {
+					if (this->can_castle(CASTLE_DECODE_ATTRIBUTES::BLACK_KING_SIDE, black_king_side_castle_occupancy, opponent_attacks, piece_position_mask))
 						moves.add_move(Move::encode_move(piece_position, g8, KING, NONE, 0, 0, 0, 1));
-					if (this->can_castle(0b1000, black_queen_side_castle_occupancy, opponent_attacks, piece_position_mask))
+					if (this->can_castle(CASTLE_DECODE_ATTRIBUTES::BLACK_QUEEN_SIDE, black_queen_side_castle_occupancy, opponent_attacks, piece_position_mask))
 						moves.add_move(Move::encode_move(piece_position, c8, KING, NONE, 0, 0, 0, 1));
 				}
 				break;
@@ -298,9 +299,9 @@ void Player::generate_king_moves(uint64_t piece_bitboard, uint64_t opponent_stat
 	}
 }
 
-bool Player::can_castle(unsigned int rights, uint64_t castle_occupancy, uint64_t opponent_attacks, uint64_t king_position_mask)
+bool Player::can_castle(CASTLE_DECODE_ATTRIBUTES attribute_name, uint64_t castle_occupancy, uint64_t opponent_attacks, uint64_t king_position_mask)
 {
-	return ((castling_rights & rights) && ((~*this->board_state & castle_occupancy) == castle_occupancy && castle_occupancy == (castle_occupancy & ~opponent_attacks)) && !(king_position_mask & opponent_attacks));
+	return ((Move::decode_castle_rights(castling_rights,attribute_name)) && ((~*this->board_state & castle_occupancy) == castle_occupancy && castle_occupancy == (castle_occupancy & ~opponent_attacks)) && !(king_position_mask & opponent_attacks));
 }
 
 bool Player::is_incheck(uint64_t opponent_attacks)
@@ -460,7 +461,7 @@ uint64_t Player::get_piece_attacks(PieceName piece_name, Positions piece_positio
 	case ROOK:
 		return get_rook_attacks(piece_position, 0ull);
 	case QUEEN:
-		return get_rook_attacks(piece_position, 0ull)| get_bishop_attacks(piece_position, 0ull);
+		return get_rook_attacks(piece_position, 0ull) | get_bishop_attacks(piece_position, 0ull);
 	default:
 		return 0ull;
 	}

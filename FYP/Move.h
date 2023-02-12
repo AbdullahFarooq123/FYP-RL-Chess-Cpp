@@ -20,6 +20,14 @@ enum CHECK_DECODE_ATTRIBUTES {
 	ATTACKER_POSITION,
 	ATTACKER_PIECE_NAME
 };
+enum CASTLE_DECODE_ATTRIBUTES {
+	WHITE_KING_SIDE,
+	WHITE_QUEEN_SIDE,
+	BLACK_KING_SIDE,
+	BLACK_QUEEN_SIDE,
+	WHITE_BOTH,
+	BLACK_BOTH
+};
 class Move
 {
 public:
@@ -39,6 +47,11 @@ public:
 										  unsigned int attacker_position, 
 										  unsigned int attacker_piece_name);
 	static unsigned int decode_check_flag(unsigned int check_flag, CHECK_DECODE_ATTRIBUTES attribute_name);
+	static unsigned int encode_castle_rights(unsigned int W_O_O,
+										   unsigned int W_O_O_O,
+										   unsigned int B_O_O,
+										   unsigned int B_O_O_O);
+	static unsigned int decode_castle_rights(unsigned int castle_rights, CASTLE_DECODE_ATTRIBUTES attribute_name);
 	void add_move(uint32_t move);
 	void reset_moves();
 	int get_move_count();

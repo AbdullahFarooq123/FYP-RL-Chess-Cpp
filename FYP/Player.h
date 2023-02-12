@@ -33,7 +33,7 @@ private:
 	void generate_rook_moves(uint64_t piece_bitboard, uint64_t opponent_state, uint64_t opponent_attacks, unsigned int check_flags, uint64_t attackers_ray);
 	void generate_queen_moves(uint64_t piece_bitboard, uint64_t opponent_state, uint64_t opponent_attacks, unsigned int check_flags, uint64_t attackers_ray);
 	void generate_king_moves(uint64_t piece_bitboard, uint64_t opponent_state, uint64_t opponent_attacks, unsigned int check_flags, uint64_t attackers_ray);
-	bool can_castle(unsigned int rights, uint64_t castle_occupancy, uint64_t opponent_attacks, uint64_t king_position_mask);
+	bool can_castle(CASTLE_DECODE_ATTRIBUTES attribute_name, uint64_t castle_occupancy, uint64_t opponent_attacks, uint64_t king_position_mask);
 	bool is_incheck(uint64_t opponent_attacks);
 	uint64_t get_opponent_attacks(unsigned int &check_flags);
 	uint64_t get_attackers_ray(unsigned int check_flags);
