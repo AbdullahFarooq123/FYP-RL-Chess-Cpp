@@ -2,6 +2,8 @@
 #include<iostream>
 #include<algorithm>
 #include"attribute_utilities.h"
+#include "general_utilities.h"
+#include "Move.h"
 using namespace std;
 class Fen_utility
 {
