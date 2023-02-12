@@ -1,2 +1,5 @@
-﻿  Engine.cpp
+﻿  Player.cpp
+D:\GitHub\FYP-RL-Chess-Cpp\FYP\Player.cpp(171): warning C4554: '<<': check operator precedence for possible error; use parentheses to clarify precedence
+D:\GitHub\FYP-RL-Chess-Cpp\FYP\Player.cpp(174): warning C4554: '<<': check operator precedence for possible error; use parentheses to clarify precedence
+D:\GitHub\FYP-RL-Chess-Cpp\FYP\Player.cpp(179): warning C4244: 'argument': conversion from 'double' to 'uint32_t', possible loss of data
   FYP.vcxproj -> D:\GitHub\FYP-RL-Chess-Cpp\x64\Debug\FYP.exe

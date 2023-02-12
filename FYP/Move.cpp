@@ -41,10 +41,11 @@ int Move::decode_move(uint32_t move, MOVE_DECODE_ATTRIBUTES attribute_name)
 		return 0;
 	}
 }
-
+//attacker-piece-name  attacker-position   knight-check  double-check  check 
+//    000                 000000               0             0           0
 unsigned int Move::encode_check_flag(unsigned int check_count, unsigned int knight_attack, unsigned int attacker_position, unsigned int attacker_piece_name)
 {
-	return (check_count) | (knight_attack << 2) | (attacker_position << 3) | (attacker_piece_name << 8);
+	return (check_count) | (knight_attack << 2) | (attacker_position << 3) | (attacker_piece_name << 9);
 }
 
 unsigned int Move::decode_check_flag(unsigned int check_flag, CHECK_DECODE_ATTRIBUTES attribute_name)
@@ -58,11 +59,11 @@ unsigned int Move::decode_check_flag(unsigned int check_flag, CHECK_DECODE_ATTRI
 	case BOTH_CHECK:
 		return check_flag & 0b11;
 	case KNIGHT_CHECK:
-		return (check_flag>>3) & 0b1;
+		return (check_flag>>2) & 0b1;
 	case ATTACKER_POSITION:
-		return (check_flag>>4) & 0b111111;
+		return (check_flag>>3) & 0b111111;
 	case ATTACKER_PIECE_NAME:
-		return (check_flag>>10) & 0b111;
+		return (check_flag>>9) & 0b111;
 	default:
 		return 0;
 	}
