@@ -5,7 +5,7 @@ using namespace std;
 
 Engine::Engine()
 {
-	Fen_utility fen = Fen_utility("5k2/8/8/7B/8/8/6PP/q3K2R w K - 0 11");
+	Fen_utility fen = Fen_utility("5k2/8/8/7B/8/8/q5PP/4K2R w K - 0 11");
 	this->board_state = fen.getBitboard();
 	int enpassant_position = fen.get_enpassant();
 	uint64_t white_state = fen.getBitboard(Side::WHITE);
