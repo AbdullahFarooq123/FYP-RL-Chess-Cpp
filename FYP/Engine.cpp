@@ -1,11 +1,9 @@
 ﻿#include "Engine.h"
-#include<fcntl.h>
-#include<io.h>
 using namespace std;
 
 Engine::Engine()
 {
-	Fen_utility fen = Fen_utility("5k2/8/8/7B/8/8/q5PP/4K2R w K - 0 11");
+	Fen_utility fen = Fen_utility("5k2/8/8/4K3/8/8/8/R7 w - - 0 11");
 	this->board_state = fen.getBitboard();
 	int enpassant_position = fen.get_enpassant();
 	uint64_t white_state = fen.getBitboard(Side::WHITE);

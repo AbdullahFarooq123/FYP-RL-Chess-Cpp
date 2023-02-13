@@ -55,7 +55,7 @@ void printAsciiBitboard(uint64_t bitboard, Player white_player,Player black_play
 	cout << "\n     ";
 	for (int i = 'a'; i <= 'h'; i++)
 		cout << (char)i << "  ";
-	cout << endl;
+	cout << endl << endl;
 }
 uint64_t getBitboard(int file, int rank) {
 	uint64_t board = 0ull;
