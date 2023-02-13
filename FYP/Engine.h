@@ -14,6 +14,8 @@ private:
 	uint64_t board_state;
 	uint32_t previous_move;
 	bool white_turn;
-	void validate_moves(Player * current_player);
+	bool make_move(string move, Player* current_player);
+	bool decode_player_move(string move, PieceName& piece_to_move, Positions& move_from, Positions& move_to);
+	bool find_move(PieceName piece_to_move, Positions move_from, Positions move_to, uint32_t move_found, Player* current_player);
 };
 

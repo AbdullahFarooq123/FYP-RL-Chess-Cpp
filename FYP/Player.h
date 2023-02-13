@@ -15,6 +15,7 @@ public:
 	void set_opponent_player(Player* opponent_player);
 	uint64_t get_player_state();
 	uint64_t* get_player_pieces();
+	Move get_moves();
 private:
 	Side player_side;
 	unsigned int castling_rights;
