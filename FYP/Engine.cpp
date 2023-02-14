@@ -3,7 +3,7 @@ using namespace std;
 
 Engine::Engine()
 {
-	Fen_utility fen = Fen_utility("2b3nr/2pp2k1/2r4p/pp1B1pp1/4P2P/PQPq2P1/P4P2/R3K2R w KQ - 0 1");
+	Fen_utility fen = Fen_utility("5k2/8/8/8/8/2P5/8/7K w - - 0 11");
 	this->board_state = fen.getBitboard();
 	int enpassant_position = fen.get_enpassant();
 	uint64_t white_state = fen.getBitboard(Side::WHITE);
@@ -47,15 +47,16 @@ void Engine::run()
 			cin >> move;
 		} while (!(make_move(move, current_player)));
 		this->white_turn = !white_turn;
+		//unmake_move();
 		system("cls");
 	}
 }
 
 bool Engine::make_move(string move, Player * current_player)
 {
-	Player_state white_state = Player_state(this->white_player->get_player_state(),this->white_player->get_deep_copy_pieces(),this->white_turn,this->white_player->get_castling_rights(),*this->white_player->get_enpassant_square());
-	Player_state black_state = Player_state(this->black_player->get_player_state(), this->black_player->get_deep_copy_pieces(), !this->white_turn, this->black_player->get_castling_rights(), *this->white_player->get_enpassant_square());
-	this->prev_states.push(Game_state(white_state,black_state,this->board_state,this->previous_move));
+	Player_state white_state = Player_state(this->white_player->get_player_state(),this->white_player->get_deep_copy_pieces(),this->white_player->get_castling_rights(),*this->white_player->get_enpassant_square());
+	Player_state black_state = Player_state(this->black_player->get_player_state(), this->black_player->get_deep_copy_pieces(), this->black_player->get_castling_rights(), *this->white_player->get_enpassant_square());
+	this->prev_states.push(Game_state(white_state,black_state,this->board_state,this->previous_move, this->white_turn));
 	PieceName piece_to_move = NONE;
 	Positions move_from = OUT_OF_BOUNDS;
 	Positions move_to = OUT_OF_BOUNDS;
@@ -104,12 +105,11 @@ bool Engine::make_move(string move, Player * current_player)
 
 bool Engine::make_move(uint32_t move, Player * current_player)
 {
-	Player_state white_state = Player_state(this->white_player->get_player_state(), this->white_player->get_player_pieces(), this->white_turn, this->white_player->get_castling_rights(), *this->white_player->get_enpassant_square());
-	Player_state black_state = Player_state(this->black_player->get_player_state(), this->black_player->get_player_pieces(), !this->white_turn, this->black_player->get_castling_rights(), *this->white_player->get_enpassant_square());
-	this->prev_states.push(Game_state(white_state, black_state, this->board_state, this->previous_move));
+	Player_state white_state = Player_state(this->white_player->get_player_state(), this->white_player->get_deep_copy_pieces(), this->white_player->get_castling_rights(), *this->white_player->get_enpassant_square());
+	Player_state black_state = Player_state(this->black_player->get_player_state(), this->black_player->get_deep_copy_pieces(), this->black_player->get_castling_rights(), *this->white_player->get_enpassant_square());
+	this->prev_states.push(Game_state(white_state, black_state, this->board_state, this->previous_move, this->white_turn));
 	Positions target_square = (Positions)Move::decode_move(move, MOVE_DECODE_ATTRIBUTES::TARGET_SQUARE);
 	Positions source_square = (Positions)Move::decode_move(move, MOVE_DECODE_ATTRIBUTES::SOURCE_SQUARE);
-
 	uint32_t player_move = 0ul;
 	bool capture_flag = (bool)Move::decode_move(player_move, CAPTURE_FLAG);
 	bool en_passant_flag = (bool)Move::decode_move(player_move, EN_PASSANT_FLAG);
@@ -158,7 +158,7 @@ void Engine::unmake_move()
 		this->black_player->set_state(game_state.black_state);
 		delete[] game_state.white_state.player_pieces_state;
 		delete[] game_state.black_state.player_pieces_state;
-
+		this->white_turn = game_state.white_turn;
 		prev_states.pop();
 	}
 }

@@ -4,11 +4,12 @@
 class Game_state
 {
 public:
-	Game_state(Player_state white_state, Player_state black_state, uint64_t board_state, uint32_t previous_move);
+	Game_state(Player_state white_state, Player_state black_state, uint64_t board_state, uint32_t previous_move, bool white_turn);
 	~Game_state();
 	Player_state white_state;
 	Player_state black_state;
 	uint64_t board_state;
 	uint32_t previous_move;
+	bool white_turn;
 };
 
