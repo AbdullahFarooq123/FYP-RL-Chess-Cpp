@@ -67,3 +67,16 @@ uint64_t getBitboard(int file, int rank) {
 	}
 	return board;
 }
+
+string add_str_padding(string value, int width)
+{
+	int back_padding = floor((float)(width - value.length()) / 2);
+	int front_padding = ceil((float)(width - value.length()) / 2);
+	string new_string = "";
+	for (int i = 0; i < back_padding; i++)
+		new_string += ' ';
+	new_string += value;
+	for (int i = 0; i < front_padding; i++)
+		new_string += ' ';
+	return new_string;
+}

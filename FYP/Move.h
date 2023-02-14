@@ -1,5 +1,4 @@
 #pragma once
-#include<iostream>
 #include"attribute_utilities.h"
 #include"Iterator.h"
 enum MOVE_DECODE_ATTRIBUTES {

@@ -1,6 +1,5 @@
 #pragma once
 
-#include<iostream>
 #include"attribute_utilities.h"
 
 #define bitmask(position) ((uint64_t)(1ull<<position))

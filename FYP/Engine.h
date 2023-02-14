@@ -15,7 +15,8 @@ private:
 	uint32_t previous_move;
 	bool white_turn;
 	bool make_move(string move, Player* current_player);
+	bool make_move(uint32_t move, Player* current_player);
 	bool decode_player_move(string move, PieceName& piece_to_move, Positions& move_from, Positions& move_to);
-	bool find_move(PieceName piece_to_move, Positions move_from, Positions move_to, uint32_t move_found, Player* current_player);
+	bool find_move(PieceName piece_to_move, Positions move_from, Positions move_to, uint32_t& move_found, Player* current_player);
 };
 

@@ -1,8 +1,7 @@
 #pragma once
-#include "attribute_utilities.h"
 #include "pre_calculation_utilities.h"
 #include "Move.h"
-#include<iostream>
+using namespace std;
 class Player
 {
 public:
@@ -14,8 +13,10 @@ public:
 	void print_moves();
 	void set_opponent_player(Player* opponent_player);
 	uint64_t get_player_state();
+	uint64_t* get_ptr_player_state();
 	uint64_t* get_player_pieces();
 	Move get_moves();
+	Player* get_opponent_player();
 private:
 	Side player_side;
 	unsigned int castling_rights;

@@ -1,6 +1,5 @@
 #include "Player.h"
-#include"game_pretty.h"
-
+#include "game_pretty.h"
 
 Player::Player(Side player_side, uint64_t* board_state, uint64_t player_state, uint64_t player_pieces_state[6], int enpassant_square, uint32_t* previous_move, unsigned int castle_rights)
 {
@@ -31,7 +30,6 @@ void Player::generate_moves()
 	int piece_name = (Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::DOUBLE_CHECK) ? PieceName::KING : PieceName::PAWN);
 	int player_kings_position = get_least_bit_index(this->player_pieces_state[KING]);
 	uint64_t kings_ray = get_rook_attacks(player_kings_position, *this->board_state) | get_bishop_attacks(player_kings_position, *this->board_state);
-
 	for (; piece_name <= PieceName::KING; piece_name++) {
 		uint64_t piece_bitboard = this->player_pieces_state[piece_name];
 		switch (piece_name)
@@ -65,9 +63,7 @@ void Player::make_move(uint32_t move)
 	PieceName piece_name = (PieceName)Move::decode_move(move, PIECE_NAME);
 	PieceName promotion_piece_name = (PieceName)Move::decode_move(move, PROMOTION_PIECE_NAME);
 	bool is_promotion = (this->player_side == WHITE && (source_square>=a7&&source_square<=h7))|| (this->player_side == BLACK && (source_square >= a2 && source_square <= h2));
-	bool capture_flag = (bool)Move::decode_move(move, CAPTURE_FLAG);
-	bool double_push_flag = (bool)Move::decode_move(move, DOUBLE_PUSH_FLAG);
-	bool en_passant_flag = (bool)Move::decode_move(move, EN_PASSANT_FLAG);
+
 	bool castle_flag = (bool)Move::decode_move(move, CASTLE_FLAG);
 	if (piece_name == KING || piece_name == ROOK) {
 		switch (player_side)
@@ -84,8 +80,9 @@ void Player::make_move(uint32_t move)
 			break;
 		}
 	}
+	player_state &= ~bitmask(source_square);
 	player_pieces_state[piece_name] &= ~bitmask(source_square);
-	if(is_promotion)
+	if (is_promotion)
 		player_pieces_state[promotion_piece_name] |= bitmask(target_square);
 	else if (castle_flag) {
 		Positions rook_from_square = OUT_OF_BOUNDS;
@@ -106,8 +103,18 @@ void Player::make_move(uint32_t move)
 			rook_from_square = a8;
 			rook_to_square = d8;
 		}
+		
+		player_pieces_state[ROOK] &= ~bitmask(rook_from_square);
+		player_state &= ~bitmask(rook_from_square);
+		player_pieces_state[ROOK] |= bitmask(rook_to_square);
+		player_state |= bitmask(rook_to_square);
+		player_pieces_state[KING] |= bitmask(target_square);
+		player_state |= bitmask(target_square);
 	}
-	*previous_move = move;
+	else
+		player_pieces_state[piece_name] |= bitmask(target_square);
+	player_state |= bitmask(target_square);
+
 }
 
 uint64_t Player::get_bitboard()
@@ -117,17 +124,26 @@ uint64_t Player::get_bitboard()
 
 void Player::print_moves()
 {
+	cout << "*************************************************************************************************************************************\n";
+	cout << "*                                                                                                                                   *\n";
+	cout <<"*"<< add_str_padding("MOVES TABLE", string("***********************************************************************************************************************************").length())<<"*"<<endl;
+	cout << "*                                                                                                                                   *\n";
+	cout << "*************************************************************************************************************************************\n";
+	cout << "*  PIECE NAME  *  SOURCE SQ.  *  TARGET SQ.  *  DOUBLE PUSH  *  ENPASSANT  *  CAPTURE  *  CASTLE  *  PROMOTION PIECE  *  MOVE NAME  *\n";
+	cout << "*************************************************************************************************************************************\n";
 	for (uint32_t move : moves) {
-		string source_square = str_positions[Move::decode_move(move, SOURCE_SQUARE)];
-		string target_square = str_positions[Move::decode_move(move, TARGET_SQUARE)];
-		string piece_name = str_piece_names[Move::decode_move(move, PIECE_NAME)];
-		string promotion_piece_name = str_piece_names[Move::decode_move(move, PROMOTION_PIECE_NAME)];
-		string capture_flag = ((bool)Move::decode_move(move, CAPTURE_FLAG) ? "CAPTURE" : "-");
-		string double_push_flag = ((bool)Move::decode_move(move, DOUBLE_PUSH_FLAG) ? "DOUBLE PUSH" : "-");
-		string en_passant_flag = ((bool)Move::decode_move(move, EN_PASSANT_FLAG) ? "EN-PASSANT" : "-");
-		string castle_flag = ((bool)Move::decode_move(move, CASTLE_FLAG) ? "CASTLE" : "-");
-		cout << piece_name << "(" << source_square << "->" << target_square << ") " << (promotion_piece_name == "NONE" ? "-" : promotion_piece_name) << ", " << capture_flag << ", " << double_push_flag << ", " << en_passant_flag << ", " << castle_flag << endl;
+		string source_square = add_str_padding(str_positions[Move::decode_move(move, SOURCE_SQUARE)],string("  SOURCE SQ.  ").length());
+		string target_square = add_str_padding(str_positions[Move::decode_move(move, TARGET_SQUARE)], string("  TARGET SQ.  ").length());
+		string piece_name = add_str_padding(str_piece_names[Move::decode_move(move, PIECE_NAME)], string("  PIECE NAME  ").length());
+		string promotion_piece_name = add_str_padding(str_piece_names[Move::decode_move(move, PROMOTION_PIECE_NAME)], string("  PROMOTION PIECE  ").length());
+		string capture_flag = add_str_padding(((bool)Move::decode_move(move, CAPTURE_FLAG) ? "CAPTURE" : "-"), string("  CAPTURE  ").length());
+		string double_push_flag = add_str_padding(((bool)Move::decode_move(move, DOUBLE_PUSH_FLAG) ? "DOUBLE PUSH" : "-"), string("  DOUBLE PUSH  ").length());
+		string en_passant_flag = add_str_padding(((bool)Move::decode_move(move, EN_PASSANT_FLAG) ? "EN-PASSANT" : "-"), string("  ENPASSANT  ").length());
+		string castle_flag = add_str_padding(((bool)Move::decode_move(move, CASTLE_FLAG) ? "CASTLE" : "-"), string("  CASTLE  ").length());
+		string possible_move_name = add_str_padding((piece_name=="     PAWN     "?"":(string(1,piece_unicodes[1][Move::decode_move(move, PIECE_NAME)]))) + str_positions[Move::decode_move(move, SOURCE_SQUARE)] + str_positions[Move::decode_move(move, TARGET_SQUARE)], string("  MOVE NAME  ").length());
+		cout << "*" << piece_name << "*" << source_square << "*" << target_square << "*" << double_push_flag << "*" << en_passant_flag << "*" << capture_flag << "*" << castle_flag << "*" << promotion_piece_name << "*" << possible_move_name << "*" << endl;
 	}
+	cout << "*************************************************************************************************************************************\n";
 }
  
 void Player::set_opponent_player(Player * opponent_player)
@@ -166,7 +182,7 @@ void Player::generate_pawn_moves(uint64_t piece_bitboard, uint64_t opponent_stat
 			}
 
 		}
-		if ((~Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::DOUBLE_CHECK) & ~Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::KNIGHT_CHECK)) && !is_pinned) {
+		if ((~Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::DOUBLE_CHECK) & ~Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::KNIGHT_CHECK))) {
 			//Quite and double push moves
 			uint64_t quite_move = 0ull;
 			uint64_t double_push_move = 0ull;
@@ -211,7 +227,7 @@ void Player::generate_pawn_moves(uint64_t piece_bitboard, uint64_t opponent_stat
 			if ((piece_position >= a5 && piece_position <= h5 && player_side == WHITE) || (piece_position >= a4 && piece_position <= h4 && player_side == BLACK)) {
 				uint64_t enpassant_capture = pawn_attack_maps[this->player_side][piece_position];
 				bool prev_double_push = Move::decode_move(*previous_move, DOUBLE_PUSH_FLAG);
-				uint64_t enpassant_bitboard = bitmask(Move::decode_move(*previous_move, TARGET_SQUARE) + (player_side == WHITE ? -8 : +8));
+				uint64_t enpassant_bitboard = bitmask(Move::decode_move(*previous_move, TARGET_SQUARE) + (player_side == WHITE ? +8 : -8));
 				bool is_enpassant = enpassant_bitboard & enpassant_capture;
 				if ((enpassant_square != OUT_OF_BOUNDS) && (bool)(bitmask(enpassant_square) & enpassant_capture)) {
 					bool is_enpassant = bitmask(enpassant_square + (player_side == WHITE ? +8 : -8)) & *this->board_state;
@@ -387,8 +403,9 @@ bool Player::is_incheck(uint64_t opponent_attacks)
 
 uint64_t Player::get_opponent_attacks(unsigned int& check_flags, uint64_t * opponent_pieces)
 {
+
 	uint64_t opponent_attacks = 0ull;
-	Side opponent_side = (Side)~this->player_side;
+	Side opponent_side = (Side)!this->player_side;
 	uint64_t player_king_mask = this->player_pieces_state[KING];
 	bool knight_attack = false;
 	unsigned int attacker_position = Positions::OUT_OF_BOUNDS;
@@ -558,7 +575,7 @@ uint64_t Player::generate_ray_opposite_to_kings_square(Positions piece_position,
 		uint64_t ray_mask = bitmask(square);
 		while (true) {
 			piece_ray |= ray_mask;
-			if ((ray_mask & opponent_sliding_pieces) || ((ray_mask & top_edge) && (direction == -1)) || ((ray_mask & bottom_edge) && (direction == 1)))
+			if ((ray_mask & *this->board_state) || ((ray_mask & top_edge) && (direction == -1)) || ((ray_mask & bottom_edge) && (direction == 1)))
 				break;
 			square += 8 * direction;
 			ray_mask = bitmask(square);
@@ -572,7 +589,7 @@ uint64_t Player::generate_ray_opposite_to_kings_square(Positions piece_position,
 		uint64_t ray_mask = bitmask(square);
 		while (true) {
 			piece_ray |= ray_mask;
-			if ((ray_mask & opponent_sliding_pieces) || ((ray_mask & left_edge) && (direction == -1)) || ((ray_mask & right_edge) && (direction == 1)))
+			if ((ray_mask & *this->board_state) || ((ray_mask & left_edge) && (direction == -1)) || ((ray_mask & right_edge) && (direction == 1)))
 				break;
 			square += direction;
 			ray_mask = bitmask(square);
@@ -593,7 +610,7 @@ uint64_t Player::generate_ray_opposite_to_kings_square(Positions piece_position,
 		uint64_t ray_mask = bitmask(square);
 		while (true) {
 			piece_ray |= ray_mask;
-			if ((ray_mask & opponent_sliding_pieces) ||
+			if ((ray_mask & *this->board_state) ||
 				(((ray_mask & (left_edge | top_edge)) && (file_direction == -1 && rank_direction == 1))
 					||
 					((ray_mask & (right_edge | top_edge)) && (file_direction == 1 && rank_direction == 1))
@@ -614,6 +631,11 @@ uint64_t Player::get_player_state()
 	return this->player_state;
 }
 
+uint64_t* Player::get_ptr_player_state()
+{
+	return &this->player_state;
+}
+
 uint64_t* Player::get_player_pieces()
 {
 	return this->player_pieces_state;
@@ -622,4 +644,9 @@ uint64_t* Player::get_player_pieces()
 Move Player::get_moves()
 {
 	return this->moves;
+}
+
+Player* Player::get_opponent_player()
+{
+	return this->opponent_player;
 }
