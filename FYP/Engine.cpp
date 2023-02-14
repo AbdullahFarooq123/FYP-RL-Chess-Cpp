@@ -19,8 +19,8 @@ Engine::Engine()
 		white_player_bitboards[piece] = fen.getBitboard(Side::WHITE, white_pieces[piece]);
 		black_player_bitboards[piece] = fen.getBitboard(Side::BLACK, black_pieces[piece]);
 	}
-	white_player = new Player(Side::WHITE, &this->board_state, white_state, white_player_bitboards, enpassant_position, &this->previous_move, castle_rights);
-	black_player = new Player(Side::BLACK, &this->board_state, black_state, black_player_bitboards, enpassant_position, &this->previous_move, castle_rights);
+	white_player = new Player(Side::WHITE, &this->board_state, white_state, white_player_bitboards, white_turn?enpassant_position:OUT_OF_BOUNDS, &this->previous_move, castle_rights);
+	black_player = new Player(Side::BLACK, &this->board_state, black_state, black_player_bitboards, !white_turn ? enpassant_position : OUT_OF_BOUNDS, &this->previous_move, castle_rights);
 	white_player->set_opponent_player(black_player);
 	black_player->set_opponent_player(white_player);
 	init_precalculation_utilities();
@@ -40,13 +40,12 @@ void Engine::run()
 		current_player->generate_moves();
 		current_player->print_moves();
 		bool correct_move = false;
-		while (!correct_move) {
-			string move;
+		string move;
+		do {
 			cout << (this->white_turn ? "WHITE's" : "BLACK's") << " TURN!\n";
 			cout << "Please enter your move : ";
 			cin >> move;
-			correct_move = make_move(move, current_player);
-		}
+		} while (!(make_move(move, current_player)));
 		this->white_turn = !white_turn;
 		system("cls");
 	}
@@ -54,6 +53,9 @@ void Engine::run()
 
 bool Engine::make_move(string move, Player * current_player)
 {
+	Player_state white_state = Player_state(this->white_player->get_player_state(),this->white_player->get_deep_copy_pieces(),this->white_turn,this->white_player->get_castling_rights(),*this->white_player->get_enpassant_square());
+	Player_state black_state = Player_state(this->black_player->get_player_state(), this->black_player->get_deep_copy_pieces(), !this->white_turn, this->black_player->get_castling_rights(), *this->white_player->get_enpassant_square());
+	this->prev_states.push(Game_state(white_state,black_state,this->board_state,this->previous_move));
 	PieceName piece_to_move = NONE;
 	Positions move_from = OUT_OF_BOUNDS;
 	Positions move_to = OUT_OF_BOUNDS;
@@ -86,6 +88,7 @@ bool Engine::make_move(string move, Player * current_player)
 			if (*opponent_piece_mask & enpassant_mask) {
 				*opponent_piece_mask &= ~enpassant_mask;
 				*current_player->get_opponent_player()->get_ptr_player_state() &= ~enpassant_mask;
+				*current_player->get_enpassant_square() = OUT_OF_BOUNDS;
 				found = true;
 				break;
 			}
@@ -101,6 +104,9 @@ bool Engine::make_move(string move, Player * current_player)
 
 bool Engine::make_move(uint32_t move, Player * current_player)
 {
+	Player_state white_state = Player_state(this->white_player->get_player_state(), this->white_player->get_player_pieces(), this->white_turn, this->white_player->get_castling_rights(), *this->white_player->get_enpassant_square());
+	Player_state black_state = Player_state(this->black_player->get_player_state(), this->black_player->get_player_pieces(), !this->white_turn, this->black_player->get_castling_rights(), *this->white_player->get_enpassant_square());
+	this->prev_states.push(Game_state(white_state, black_state, this->board_state, this->previous_move));
 	Positions target_square = (Positions)Move::decode_move(move, MOVE_DECODE_ATTRIBUTES::TARGET_SQUARE);
 	Positions source_square = (Positions)Move::decode_move(move, MOVE_DECODE_ATTRIBUTES::SOURCE_SQUARE);
 
@@ -140,6 +146,21 @@ bool Engine::make_move(uint32_t move, Player * current_player)
 	current_player->make_move(player_move);
 	this->previous_move = player_move;
 	return true;
+}
+
+void Engine::unmake_move()
+{
+	if (!prev_states.empty()) {
+		Game_state game_state = prev_states.top();
+		this->previous_move = game_state.previous_move;
+		this->board_state = game_state.board_state;
+		this->white_player->set_state(game_state.white_state);
+		this->black_player->set_state(game_state.black_state);
+		delete[] game_state.white_state.player_pieces_state;
+		delete[] game_state.black_state.player_pieces_state;
+
+		prev_states.pop();
+	}
 }
 
 bool Engine::decode_player_move(string move, PieceName & piece_to_move, Positions & move_from, Positions & move_to)
@@ -242,5 +263,7 @@ bool Engine::find_move(PieceName piece_to_move, Positions move_from, Positions m
 			}
 		}
 	}
-	return true;
+	if (!move_already_found)
+		cout << "No move found.\nPlease be specific for the move" << endl;
+	return move_already_found;
 }

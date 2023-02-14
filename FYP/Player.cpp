@@ -63,7 +63,6 @@ void Player::make_move(uint32_t move)
 	PieceName piece_name = (PieceName)Move::decode_move(move, PIECE_NAME);
 	PieceName promotion_piece_name = (PieceName)Move::decode_move(move, PROMOTION_PIECE_NAME);
 	bool is_promotion = (this->player_side == WHITE && (source_square>=a7&&source_square<=h7))|| (this->player_side == BLACK && (source_square >= a2 && source_square <= h2));
-
 	bool castle_flag = (bool)Move::decode_move(move, CASTLE_FLAG);
 	if (piece_name == KING || piece_name == ROOK) {
 		switch (player_side)
@@ -103,7 +102,6 @@ void Player::make_move(uint32_t move)
 			rook_from_square = a8;
 			rook_to_square = d8;
 		}
-		
 		player_pieces_state[ROOK] &= ~bitmask(rook_from_square);
 		player_state &= ~bitmask(rook_from_square);
 		player_pieces_state[ROOK] |= bitmask(rook_to_square);
@@ -649,4 +647,32 @@ Move Player::get_moves()
 Player* Player::get_opponent_player()
 {
 	return this->opponent_player;
+}
+
+uint32_t Player::get_castling_rights()
+{
+	return this->castling_rights;
+}
+
+int* Player::get_enpassant_square()
+{
+	return &this->enpassant_square;
+}
+
+void Player::set_state(Player_state state)
+{
+	this->player_state = state.player_state;
+	for (int i = PAWN; i <= KING; i++) {
+		this->player_pieces_state[i] = state.player_pieces_state[i];
+	}
+	this->castling_rights = state.castling_rights;
+	this->enpassant_square = state.enpassant_square;
+}
+
+uint64_t* Player::get_deep_copy_pieces()
+{
+	uint64_t* temp_player_pieces = new uint64_t[6];
+	for (int piece = PAWN; piece <= KING; piece++)
+		temp_player_pieces[piece] = this->player_pieces_state[piece];
+	return temp_player_pieces;
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include "pre_calculation_utilities.h"
 #include "Move.h"
+#include"Player_state.h"
 using namespace std;
 class Player
 {
@@ -17,6 +18,10 @@ public:
 	uint64_t* get_player_pieces();
 	Move get_moves();
 	Player* get_opponent_player();
+	uint32_t get_castling_rights();
+	int* get_enpassant_square();
+	void set_state(Player_state state);
+	uint64_t* get_deep_copy_pieces();
 private:
 	Side player_side;
 	unsigned int castling_rights;

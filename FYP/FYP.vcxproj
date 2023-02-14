@@ -123,25 +123,31 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Debug_utilities.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Fen_utility.cpp" />
     <ClCompile Include="game_pretty.cpp" />
+    <ClCompile Include="Game_state.cpp" />
     <ClCompile Include="general_utilities.cpp" />
     <ClCompile Include="Iterator.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Move.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Player_state.cpp" />
     <ClCompile Include="pre_calculation_utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Debug_utilities.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Fen_utility.h" />
     <ClInclude Include="game_pretty.h" />
     <ClInclude Include="attribute_utilities.h" />
+    <ClInclude Include="Game_state.h" />
     <ClInclude Include="general_utilities.h" />
     <ClInclude Include="Iterator.h" />
     <ClInclude Include="Move.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="Player_state.h" />
     <ClInclude Include="pre_calculation_utilities.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
