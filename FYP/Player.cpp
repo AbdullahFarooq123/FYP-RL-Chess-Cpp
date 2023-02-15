@@ -138,7 +138,12 @@ void Player::print_moves()
 		string double_push_flag = add_str_padding(((bool)Move::decode_move(move, DOUBLE_PUSH_FLAG) ? "DOUBLE PUSH" : "-"), string("  DOUBLE PUSH  ").length());
 		string en_passant_flag = add_str_padding(((bool)Move::decode_move(move, EN_PASSANT_FLAG) ? "EN-PASSANT" : "-"), string("  ENPASSANT  ").length());
 		string castle_flag = add_str_padding(((bool)Move::decode_move(move, CASTLE_FLAG) ? "CASTLE" : "-"), string("  CASTLE  ").length());
-		string possible_move_name = add_str_padding((piece_name=="     PAWN     "?"":(string(1,piece_unicodes[1][Move::decode_move(move, PIECE_NAME)]))) + str_positions[Move::decode_move(move, SOURCE_SQUARE)] + str_positions[Move::decode_move(move, TARGET_SQUARE)], string("  MOVE NAME  ").length());
+		string possible_move_name = add_str_padding(string(1, piece_unicodes[1][Move::decode_move(move, PIECE_NAME)]) +
+			str_positions[Move::decode_move(move, SOURCE_SQUARE)] +
+			str_positions[Move::decode_move(move, TARGET_SQUARE)] +
+			(Move::decode_move(move, PROMOTION_PIECE_NAME) != NONE ? string(1, piece_unicodes[1][Move::decode_move(move, PROMOTION_PIECE_NAME)]) : "")
+			, string("  MOVE NAME  ").length()
+		);
 		cout << "*" << piece_name << "*" << source_square << "*" << target_square << "*" << double_push_flag << "*" << en_passant_flag << "*" << capture_flag << "*" << castle_flag << "*" << promotion_piece_name << "*" << possible_move_name << "*" << endl;
 	}
 	cout << "*************************************************************************************************************************************\n";

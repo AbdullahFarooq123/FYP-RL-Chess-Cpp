@@ -1,9 +1,13 @@
 ﻿  Engine.cpp
-D:\GitHub\FYP-RL-Chess-Cpp\FYP\Engine.cpp(173): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
-D:\GitHub\FYP-RL-Chess-Cpp\FYP\Engine.cpp(185): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
-D:\GitHub\FYP-RL-Chess-Cpp\FYP\Engine.cpp(186): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
-D:\GitHub\FYP-RL-Chess-Cpp\FYP\Engine.cpp(203): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-D:\GitHub\FYP-RL-Chess-Cpp\FYP\Engine.cpp(214): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-D:\GitHub\FYP-RL-Chess-Cpp\FYP\Engine.cpp(222): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
+D:\GitHub\FYP-RL-Chess-Cpp\FYP\Engine.cpp(175): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
+D:\GitHub\FYP-RL-Chess-Cpp\FYP\Engine.cpp(187): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
+D:\GitHub\FYP-RL-Chess-Cpp\FYP\Engine.cpp(188): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
+D:\GitHub\FYP-RL-Chess-Cpp\FYP\Engine.cpp(205): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:\GitHub\FYP-RL-Chess-Cpp\FYP\Engine.cpp(216): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
 D:\GitHub\FYP-RL-Chess-Cpp\FYP\Engine.cpp(223): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
+D:\GitHub\FYP-RL-Chess-Cpp\FYP\Engine.cpp(224): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
+D:\GitHub\FYP-RL-Chess-Cpp\FYP\Engine.cpp(241): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:\GitHub\FYP-RL-Chess-Cpp\FYP\Engine.cpp(248): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:\GitHub\FYP-RL-Chess-Cpp\FYP\Engine.cpp(251): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
+D:\GitHub\FYP-RL-Chess-Cpp\FYP\Engine.cpp(252): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
   FYP.vcxproj -> D:\GitHub\FYP-RL-Chess-Cpp\x64\Debug\FYP.exe

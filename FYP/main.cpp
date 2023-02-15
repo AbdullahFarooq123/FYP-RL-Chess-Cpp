@@ -1,4 +1,4 @@
-#include "Engine.h"
+#include "Debug_utilities.h"
 int main() {
-	Engine().run();
+	Debug_utilities().engine_normal_run();
 }

@@ -10,7 +10,7 @@ public:
 	Engine();
 	~Engine();
 	void run();
-private:
+protected:
 	Player* white_player;
 	Player* black_player;
 	uint64_t board_state;
@@ -20,7 +20,7 @@ private:
 	bool make_move(string move, Player* current_player);
 	bool make_move(uint32_t move, Player* current_player);
 	void unmake_move();
-	bool decode_player_move(string move, PieceName& piece_to_move, Positions& move_from, Positions& move_to);
-	bool find_move(PieceName piece_to_move, Positions move_from, Positions move_to, uint32_t& move_found, Player* current_player);
+	bool decode_player_move(string move, PieceName& piece_to_move, Positions& move_from, Positions& move_to, PieceName & promotion_piece);
+	bool find_move(PieceName piece_to_move, Positions move_from, Positions move_to, uint32_t& move_found, PieceName& promotion_piece, Player* current_player);
 };
 

@@ -3,7 +3,7 @@ using namespace std;
 
 Engine::Engine()
 {
-	Fen_utility fen = Fen_utility("5k2/8/8/8/8/2P5/8/7K w - - 0 11");
+	Fen_utility fen = Fen_utility("2b2k2/1P6/8/6b1/8/8/8/R3K2R w KQ - 0 11");
 	this->board_state = fen.getBitboard();
 	int enpassant_position = fen.get_enpassant();
 	uint64_t white_state = fen.getBitboard(Side::WHITE);
@@ -46,8 +46,7 @@ void Engine::run()
 			cout << "Please enter your move : ";
 			cin >> move;
 		} while (!(make_move(move, current_player)));
-		this->white_turn = !white_turn;
-		//unmake_move();
+		white_turn = !white_turn;
 		system("cls");
 	}
 }
@@ -58,11 +57,12 @@ bool Engine::make_move(string move, Player * current_player)
 	Player_state black_state = Player_state(this->black_player->get_player_state(), this->black_player->get_deep_copy_pieces(), this->black_player->get_castling_rights(), *this->white_player->get_enpassant_square());
 	this->prev_states.push(Game_state(white_state,black_state,this->board_state,this->previous_move, this->white_turn));
 	PieceName piece_to_move = NONE;
+	PieceName promotion_piece = NONE;
 	Positions move_from = OUT_OF_BOUNDS;
 	Positions move_to = OUT_OF_BOUNDS;
 	uint32_t player_move = 0ul;
-	if (!decode_player_move(move, piece_to_move, move_from, move_to))return false;
-	if (!find_move(piece_to_move, move_from, move_to, player_move, current_player))return false;
+	if (!decode_player_move(move, piece_to_move, move_from, move_to,promotion_piece))return false;
+	if (!find_move(piece_to_move, move_from, move_to, player_move,promotion_piece, current_player))return false;
 	bool capture_flag = (bool)Move::decode_move(player_move, CAPTURE_FLAG);
 	bool en_passant_flag = (bool)Move::decode_move(player_move, EN_PASSANT_FLAG);
 	uint64_t* opponent_pieces = current_player->get_opponent_player()->get_player_pieces();
@@ -110,9 +110,8 @@ bool Engine::make_move(uint32_t move, Player * current_player)
 	this->prev_states.push(Game_state(white_state, black_state, this->board_state, this->previous_move, this->white_turn));
 	Positions target_square = (Positions)Move::decode_move(move, MOVE_DECODE_ATTRIBUTES::TARGET_SQUARE);
 	Positions source_square = (Positions)Move::decode_move(move, MOVE_DECODE_ATTRIBUTES::SOURCE_SQUARE);
-	uint32_t player_move = 0ul;
-	bool capture_flag = (bool)Move::decode_move(player_move, CAPTURE_FLAG);
-	bool en_passant_flag = (bool)Move::decode_move(player_move, EN_PASSANT_FLAG);
+	bool capture_flag = (bool)Move::decode_move(move, CAPTURE_FLAG);
+	bool en_passant_flag = (bool)Move::decode_move(move, EN_PASSANT_FLAG);
 	uint64_t* opponent_pieces = current_player->get_opponent_player()->get_player_pieces();
 	if (capture_flag) {
 		uint64_t capture_mask = bitmask(target_square);
@@ -121,6 +120,7 @@ bool Engine::make_move(uint32_t move, Player * current_player)
 			uint64_t* opponent_piece_mask = &opponent_pieces[piece_name];
 			if (*opponent_piece_mask & capture_mask) {
 				*opponent_piece_mask &= ~capture_mask;
+				*current_player->get_opponent_player()->get_ptr_player_state() &= ~capture_mask;
 				found = true;
 				break;
 			}
@@ -135,16 +135,18 @@ bool Engine::make_move(uint32_t move, Player * current_player)
 			uint64_t* opponent_piece_mask = &opponent_pieces[piece_name];
 			if (*opponent_piece_mask & enpassant_mask) {
 				*opponent_piece_mask &= ~enpassant_mask;
+				*current_player->get_opponent_player()->get_ptr_player_state() &= ~enpassant_mask;
+				*current_player->get_enpassant_square() = OUT_OF_BOUNDS;
 				found = true;
 				break;
 			}
 		}
 		if (!found)return false;
 	}
-	this->board_state &= bitmask(source_square);
+	this->board_state &= ~bitmask(source_square);
 	this->board_state |= bitmask(target_square);
-	current_player->make_move(player_move);
-	this->previous_move = player_move;
+	current_player->make_move(move);
+	this->previous_move = move;
 	return true;
 }
 
@@ -163,9 +165,9 @@ void Engine::unmake_move()
 	}
 }
 
-bool Engine::decode_player_move(string move, PieceName & piece_to_move, Positions & move_from, Positions & move_to)
+bool Engine::decode_player_move(string move, PieceName & piece_to_move, Positions & move_from, Positions & move_to, PieceName& promotion_piece)
 {
-	string pieces = "pkbrqk";
+	string pieces = "PNBRQK";
 	switch (move.length()) {
 	case 2:
 	{
@@ -218,9 +220,36 @@ bool Engine::decode_player_move(string move, PieceName & piece_to_move, Position
 			cout << "Move not found!\nPlease be specific for the move" << endl;
 			return false;
 		}
-		piece_to_move = PAWN;
 		int index_of_move_from = std::distance(str_positions, std::find(str_positions, str_positions + 64, move.substr(0, 2)));
 		int index_of_move_to = std::distance(str_positions, std::find(str_positions, str_positions + 64, move.substr(2, 2)));
+		if (index_of_move_from != 64)
+			move_from = (Positions)index_of_move_from;
+		else {
+			cout << "Move not found!\nPlease be specific for the move" << endl;
+			return false;
+		}
+		if (index_of_move_to != 64)
+			move_to = (Positions)index_of_move_to;
+		else {
+			cout << "Move not found!\nPlease be specific for the move" << endl;
+			return false;
+		}
+	}
+	break;
+	case 6:
+	{
+		int index_of_piece = pieces.find(move[0]);
+		if (index_of_piece != string::npos)
+			piece_to_move = (PieceName)index_of_piece;
+		else {
+			cout << "Move not found!\nPlease be specific for the move" << endl;
+			return false;
+		}
+		int index_of_promotion_piece = pieces.find(move[5]);
+		if (index_of_promotion_piece != string::npos)
+			promotion_piece = (PieceName)index_of_promotion_piece;
+		int index_of_move_from = std::distance(str_positions, std::find(str_positions, str_positions + 64, move.substr(1, 2)));
+		int index_of_move_to = std::distance(str_positions, std::find(str_positions, str_positions + 64, move.substr(3, 2)));
 		if (index_of_move_from != 64)
 			move_from = (Positions)index_of_move_from;
 		else {
@@ -242,7 +271,7 @@ bool Engine::decode_player_move(string move, PieceName & piece_to_move, Position
 	return true;
 }
 
-bool Engine::find_move(PieceName piece_to_move, Positions move_from, Positions move_to, uint32_t & move_found, Player * current_player)
+bool Engine::find_move(PieceName piece_to_move, Positions move_from, Positions move_to, uint32_t & move_found, PieceName& promotion_piece, Player * current_player)
 {
 	bool move_already_found = false;
 
@@ -251,8 +280,17 @@ bool Engine::find_move(PieceName piece_to_move, Positions move_from, Positions m
 		if (move_piece_name == piece_to_move) {
 			Positions move_piece_from = (Positions)Move::decode_move(move, MOVE_DECODE_ATTRIBUTES::SOURCE_SQUARE);
 			Positions move_piece_to = (Positions)Move::decode_move(move, MOVE_DECODE_ATTRIBUTES::TARGET_SQUARE);
+			PieceName promotion_piece_name = (PieceName)Move::decode_move(move, MOVE_DECODE_ATTRIBUTES::PROMOTION_PIECE_NAME);
 			if (move_piece_to == move_to) {
-				if (move_from == OUT_OF_BOUNDS || move_from == move_piece_from) {
+				if ((move_from == OUT_OF_BOUNDS || move_from == move_piece_from)&&promotion_piece==NONE) {
+					if (move_already_found) {
+						cout << "Move ambiguity!\nTwo or more moves with the same name.\nPlease be specific for the move" << endl;
+						return false;
+					}
+						move_already_found = true;
+						move_found = move;
+				}
+				else if (promotion_piece != NONE && promotion_piece == promotion_piece_name) {
 					if (move_already_found) {
 						cout << "Move ambiguity!\nTwo or more moves with the same name.\nPlease be specific for the move" << endl;
 						return false;

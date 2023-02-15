@@ -4,7 +4,7 @@
 
 Move::Move()
 {
-	this->move_index = 0;
+	this->length = 0;
 }
 
 
@@ -97,17 +97,17 @@ unsigned int Move::decode_castle_rights(unsigned int castle_rights, CASTLE_DECOD
 
 void Move::add_move(uint32_t move)
 {
-	moves[move_index++] = move;
+	moves[length++] = move;
 }
 
 void Move::reset_moves()
 {
-	this->move_index = 0;
+	this->length = 0;
 }
 
-int Move::get_move_count()
+int Move::get_length()
 {
-	return this->move_index;
+	return this->length;
 }
 Iterator Move::begin()
 {
@@ -116,7 +116,14 @@ Iterator Move::begin()
 
 Iterator Move::end()
 {
-	return Iterator(moves + move_index);
+	return Iterator(moves + length);
+}
+
+uint32_t Move::operator[](int index)
+{
+	if (this->length&&index<length)
+		return moves[index];
+	return -1;
 }
 
 

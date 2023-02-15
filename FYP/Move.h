@@ -53,12 +53,13 @@ public:
 	static unsigned int decode_castle_rights(unsigned int castle_rights, CASTLE_DECODE_ATTRIBUTES attribute_name);
 	void add_move(uint32_t move);
 	void reset_moves();
-	int get_move_count();
+	int get_length();
 	Iterator begin();
 	Iterator end();
+	uint32_t operator [] (int index);
 private:
 	uint32_t moves[256];
-	int move_index;
+	int length;
 };
 
 
