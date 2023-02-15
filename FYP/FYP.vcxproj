@@ -132,6 +132,7 @@
     <ClCompile Include="Iterator.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Move.cpp" />
+    <ClCompile Include="pgn_utilities.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Player_state.cpp" />
     <ClCompile Include="pre_calculation_utilities.cpp" />
@@ -146,6 +147,7 @@
     <ClInclude Include="general_utilities.h" />
     <ClInclude Include="Iterator.h" />
     <ClInclude Include="Move.h" />
+    <ClInclude Include="pgn_utilities.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Player_state.h" />
     <ClInclude Include="pre_calculation_utilities.h" />

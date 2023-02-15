@@ -22,6 +22,7 @@ public:
 	int* get_enpassant_square();
 	void set_state(Player_state state);
 	uint64_t* get_deep_copy_pieces();
+	void remove_piece_from_player_state(uint64_t mask);
 private:
 	Side player_side;
 	unsigned int castling_rights;

@@ -10,7 +10,19 @@ public:
 	~Debug_utilities();
 	void run_make_unmake_debug();
 	void engine_normal_run();
+	int perft_debug(int depth);
+
+	void perform_custom_perft(int depth);
+
 private:
 	std::unordered_map<std::string, int> move_generations;
+	void get_move_attr_count(Move moves);
+	void custom_perft_debug(int depth);
+	int nodes = 0;
+	int captures = 0;
+	int enpassants = 0;
+	int castles = 0;
+	int promotions = 0;
+
 };
 

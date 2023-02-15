@@ -1,6 +1,7 @@
 #pragma once
 #include"attribute_utilities.h"
 #include"Iterator.h"
+#include<unordered_map>
 enum MOVE_DECODE_ATTRIBUTES {
 	SOURCE_SQUARE,
 	TARGET_SQUARE,
@@ -57,7 +58,9 @@ public:
 	Iterator begin();
 	Iterator end();
 	uint32_t operator [] (int index);
+	std::unordered_map <std::string, uint32_t> get_pgn_moves();
 private:
+	std::unordered_map <std::string, uint32_t>move_map;
 	uint32_t moves[256];
 	int length;
 };

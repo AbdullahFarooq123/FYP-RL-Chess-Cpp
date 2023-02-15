@@ -1,5 +1,6 @@
 #include "Player.h"
 #include "game_pretty.h"
+#include "pgn_utilities.h"
 
 Player::Player(Side player_side, uint64_t* board_state, uint64_t player_state, uint64_t player_pieces_state[6], int enpassant_square, uint32_t* previous_move, unsigned int castle_rights)
 {
@@ -138,12 +139,7 @@ void Player::print_moves()
 		string double_push_flag = add_str_padding(((bool)Move::decode_move(move, DOUBLE_PUSH_FLAG) ? "DOUBLE PUSH" : "-"), string("  DOUBLE PUSH  ").length());
 		string en_passant_flag = add_str_padding(((bool)Move::decode_move(move, EN_PASSANT_FLAG) ? "EN-PASSANT" : "-"), string("  ENPASSANT  ").length());
 		string castle_flag = add_str_padding(((bool)Move::decode_move(move, CASTLE_FLAG) ? "CASTLE" : "-"), string("  CASTLE  ").length());
-		string possible_move_name = add_str_padding(string(1, piece_unicodes[1][Move::decode_move(move, PIECE_NAME)]) +
-			str_positions[Move::decode_move(move, SOURCE_SQUARE)] +
-			str_positions[Move::decode_move(move, TARGET_SQUARE)] +
-			(Move::decode_move(move, PROMOTION_PIECE_NAME) != NONE ? string(1, piece_unicodes[1][Move::decode_move(move, PROMOTION_PIECE_NAME)]) : "")
-			, string("  MOVE NAME  ").length()
-		);
+		string possible_move_name = add_str_padding(pgn_utilities::encode_pgn(move), string("  MOVE NAME  ").length());
 		cout << "*" << piece_name << "*" << source_square << "*" << target_square << "*" << double_push_flag << "*" << en_passant_flag << "*" << capture_flag << "*" << castle_flag << "*" << promotion_piece_name << "*" << possible_move_name << "*" << endl;
 	}
 	cout << "*************************************************************************************************************************************\n";
@@ -228,17 +224,23 @@ void Player::generate_pawn_moves(uint64_t piece_bitboard, uint64_t opponent_stat
 		if (!is_pinned) {
 			//enpassant_capture
 			if ((piece_position >= a5 && piece_position <= h5 && player_side == WHITE) || (piece_position >= a4 && piece_position <= h4 && player_side == BLACK)) {
-				uint64_t enpassant_capture = pawn_attack_maps[this->player_side][piece_position];
-				bool prev_double_push = Move::decode_move(*previous_move, DOUBLE_PUSH_FLAG);
-				uint64_t enpassant_bitboard = bitmask(Move::decode_move(*previous_move, TARGET_SQUARE) + (player_side == WHITE ? +8 : -8));
-				bool is_enpassant = enpassant_bitboard & enpassant_capture;
-				if ((enpassant_square != OUT_OF_BOUNDS) && (bool)(bitmask(enpassant_square) & enpassant_capture)) {
-					bool is_enpassant = bitmask(enpassant_square + (player_side == WHITE ? +8 : -8)) & *this->board_state;
-					if (is_enpassant)
-						moves.add_move(Move::encode_move(piece_position, enpassant_square, PAWN, NONE, 1, 0, 1, 0));
+				uint64_t enpassant_capture_move = pawn_attack_maps[this->player_side][piece_position];
+				if (this->enpassant_square != OUT_OF_BOUNDS) {
+					uint64_t enpasssant_square_mask = bitmask(this->enpassant_square);
+					uint64_t possible_opponent_piece_for_enpassant = this->player_side == WHITE ? enpasssant_square_mask << 8 : enpasssant_square_mask >> 8;
+					bool opponent_piece_exist_for_enpassant = possible_opponent_piece_for_enpassant & *this->board_state;
+					if (opponent_piece_exist_for_enpassant) {
+						enpassant_capture_move &= enpasssant_square_mask;
+						if (enpassant_capture_move)
+							moves.add_move(Move::encode_move(piece_position, get_least_bit_index(enpassant_capture_move), PAWN, NONE, 0, 0, 1, 0));
+					}
 				}
-				else if (prev_double_push && is_enpassant) {
-					moves.add_move(Move::encode_move(piece_position, log2(enpassant_capture), PAWN, NONE, 1, 0, 1, 0));
+				else if (Move::decode_move(*previous_move, DOUBLE_PUSH_FLAG)) {
+					uint64_t previous_move_target_square = bitmask(Move::decode_move(*previous_move, TARGET_SQUARE));
+					uint64_t possible_enpassant_bitboard = this->player_side == WHITE ? previous_move_target_square >> 8 : previous_move_target_square << 8;
+					enpassant_capture_move &= possible_enpassant_bitboard;
+					if(enpassant_capture_move)
+						moves.add_move(Move::encode_move(piece_position, get_least_bit_index(enpassant_capture_move), PAWN, NONE, 0, 0, 1, 0));
 				}
 			}
 		}
@@ -680,4 +682,9 @@ uint64_t* Player::get_deep_copy_pieces()
 	for (int piece = PAWN; piece <= KING; piece++)
 		temp_player_pieces[piece] = this->player_pieces_state[piece];
 	return temp_player_pieces;
+}
+
+void Player::remove_piece_from_player_state(uint64_t mask)
+{
+	this->player_state &= ~mask;
 }

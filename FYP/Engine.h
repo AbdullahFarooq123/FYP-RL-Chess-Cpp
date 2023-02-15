@@ -17,10 +17,9 @@ protected:
 	uint32_t previous_move;
 	std::stack<Game_state> prev_states;
 	bool white_turn;
-	bool make_move(string move, Player* current_player);
-	bool make_move(uint32_t move, Player* current_player);
+	bool make_move(string move, Player* current_player, Player* opponent_player);
+	bool make_move(uint32_t move, Player* current_player, Player* opponent_player);
 	void unmake_move();
-	bool decode_player_move(string move, PieceName& piece_to_move, Positions& move_from, Positions& move_to, PieceName & promotion_piece);
-	bool find_move(PieceName piece_to_move, Positions move_from, Positions move_to, uint32_t& move_found, PieceName& promotion_piece, Player* current_player);
+	bool find_move(string move, uint32_t& move_found, Player* current_player);
 };
 

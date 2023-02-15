@@ -1,4 +1,5 @@
 #include "Move.h"
+#include"pgn_utilities.h"
 
 
 
@@ -97,11 +98,13 @@ unsigned int Move::decode_castle_rights(unsigned int castle_rights, CASTLE_DECOD
 
 void Move::add_move(uint32_t move)
 {
+	move_map[pgn_utilities::encode_pgn(move)] = move;
 	moves[length++] = move;
 }
 
 void Move::reset_moves()
 {
+	move_map.clear();
 	this->length = 0;
 }
 
@@ -124,6 +127,11 @@ uint32_t Move::operator[](int index)
 	if (this->length&&index<length)
 		return moves[index];
 	return -1;
+}
+
+std::unordered_map<std::string, uint32_t> Move::get_pgn_moves()
+{
+	return this->move_map;
 }
 
 
