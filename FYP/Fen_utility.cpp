@@ -2,10 +2,17 @@
 
 
 string Fen_utility::start_pos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+string Fen_utility::kiwipete = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ";
+string Fen_utility::check_mate = "8/8/8/8/8/7k/7q/7K w - - 0 1";
+string Fen_utility::stale_mate = "8/8/8/8/8/8/5q2/5k1K w - - 0 1";
+string Fen_utility::insufficient_material_bishop = "8/b4k2/8/8/8/8/8/7K w - - 0 1";
+string Fen_utility::insufficient_material_knight = "8/5k2/2n5/8/8/8/8/7K w - - 0 1";
+string Fen_utility::insufficient_material_both_bishop = "8/b4k2/8/8/8/8/8/4B2K w - - 0 1";
+string Fen_utility::insufficient_material_both_knight = "8/5k2/2n5/8/8/8/3N4/7K w - - 0 1";
+string Fen_utility::insufficient_material_kings = "8/5k2/8/8/8/8/8/7K w - - 0 1";
+
 string Fen_utility::tricky_castle_move_pos_1 = "8/8/8/7k/6q1/8/4B2P/4K2R w K - 0 11";
-string Fen_utility::tricky_castle_move_pos_2 ="8/8/8/8/7k/6q1/4B1PP/4K2R w K - 0 11";
-
-
+string Fen_utility::tricky_castle_move_pos_2 = "8/8/8/8/7k/6q1/4B1PP/4K2R w K - 0 11";
 
 Fen_utility::Fen_utility(std::string fen)
 {
@@ -59,11 +66,11 @@ int Fen_utility::get_castle_rights()
 	int white_queen_side_rights = 0;
 	int black_king_side_rights = 0;
 	int black_queen_side_rights = 0;
-	if (castle_rights.find('k') != string::npos)black_king_side_rights =1;
+	if (castle_rights.find('k') != string::npos)black_king_side_rights = 1;
 	if (castle_rights.find('K') != string::npos)white_king_side_rights = 1;
 	if (castle_rights.find('q') != string::npos)black_queen_side_rights = 1;
 	if (castle_rights.find('Q') != string::npos)white_queen_side_rights = 1;
-	return Move::encode_castle_rights(white_king_side_rights,white_queen_side_rights,black_king_side_rights,black_queen_side_rights);
+	return Move::encode_castle_rights(white_king_side_rights, white_queen_side_rights, black_king_side_rights, black_queen_side_rights);
 }
 
 bool Fen_utility::getSideAndPieceBitmap(Side side, Piece piece, char fen_char)

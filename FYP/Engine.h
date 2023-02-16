@@ -7,7 +7,7 @@
 class Engine
 {
 public:
-	Engine();
+	Engine(string fen_string=Fen_utility::start_pos);
 	~Engine();
 	void run();
 protected:
@@ -21,5 +21,6 @@ protected:
 	bool make_move(uint32_t move, Player* current_player, Player* opponent_player);
 	void unmake_move();
 	bool find_move(string move, uint32_t& move_found, Player* current_player);
+	bool is_game_over(Player* current_player, Player* opponent_player);
 };
 

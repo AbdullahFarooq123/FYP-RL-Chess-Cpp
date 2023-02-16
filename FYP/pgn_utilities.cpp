@@ -8,6 +8,7 @@ pgn_utilities::~pgn_utilities()
 }
 std::string pgn_utilities::encode_pgn(uint32_t move) {
 	std::string pgn_converted = "";
+	Positions source_square = (Positions)Move::decode_move(move, SOURCE_SQUARE);
 	Positions target_square = (Positions)Move::decode_move(move, TARGET_SQUARE);
 	PieceName piece_name = (PieceName)Move::decode_move(move, PIECE_NAME);
 	PieceName promotion_piece_name = (PieceName)Move::decode_move(move, PROMOTION_PIECE_NAME);
@@ -19,10 +20,10 @@ std::string pgn_utilities::encode_pgn(uint32_t move) {
 		else
 			return "O-O-O";
 	}
-	if (piece_name != PAWN)
-		pgn_converted += std::string(1,piece_unicodes[1][piece_name]);
+	pgn_converted += std::string(1, piece_unicodes[1][piece_name]);
+	pgn_converted += str_positions[source_square];
 	if (capture_flag)
-		pgn_converted += "#";
+		pgn_converted += "x";
 	pgn_converted += str_positions[target_square];
 	if (promotion_piece_name != NONE)
 		pgn_converted += "=" + std::string(1, piece_unicodes[1][promotion_piece_name]);
@@ -41,20 +42,24 @@ bool pgn_utilities::decode_pgn(std::string move)
 		}
 		return true;
 	}
-	if (move[0] == 'P');
+	int index_of_piece = pieces.find(move[0]);
+	if (index_of_piece != std::string::npos)move = move.substr(1, move.length());
 	else {
-		int index_of_piece = pieces.find(move[0]);
-		if (index_of_piece != std::string::npos);
-		else {
-			std::cout << "Invalid move!" << std::endl;
-			return false;
-		}
-		move = move.substr(1, move.length());
+		std::cout << "Invalid move!" << std::endl;
+		return false;
 	}
-	if (move.find('#') != std::string::npos)
+	
+	int index_of_move_from = std::distance(str_positions, std::find(str_positions, str_positions + 64, move.substr(0, 2)));
+	if (index_of_move_from != 64)
+		move = move.substr(2, move.length());
+	else {
+		std::cout << "Invalid move!" << std::endl;
+		return false;
+	}
+	if (move.find('x') != std::string::npos)
 		move = move.substr(1, move.length());
-	int index_of_move = std::distance(str_positions, std::find(str_positions, str_positions + 64, move.substr(0, 2)));
-	if (index_of_move != 64)
+	int index_of_move_to = std::distance(str_positions, std::find(str_positions, str_positions + 64, move.substr(0, 2)));
+	if (index_of_move_to != 64)
 		move = move.substr(2, move.length());
 	else {
 		std::cout << "Invalid move!" << std::endl;

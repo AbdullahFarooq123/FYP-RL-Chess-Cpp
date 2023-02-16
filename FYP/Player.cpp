@@ -13,6 +13,7 @@ Player::Player(Side player_side, uint64_t* board_state, uint64_t player_state, u
 	this->moves = Move();
 	for (int piece = PieceName::PAWN; piece <= PieceName::KING; piece++)
 		this->player_pieces_state[piece] = player_pieces_state[piece];
+	in_check = false;
 }
 
 Player::~Player()
@@ -113,7 +114,7 @@ void Player::make_move(uint32_t move)
 	else
 		player_pieces_state[piece_name] |= bitmask(target_square);
 	player_state |= bitmask(target_square);
-
+	this->in_check = false;
 }
 
 uint64_t Player::get_bitboard()
@@ -372,10 +373,10 @@ void Player::generate_king_moves(uint64_t piece_bitboard, uint64_t opponent_stat
 			moves.add_move(Move::encode_move(piece_position, attack_position, KING, NONE, is_attack_position, 0, 0, 0));
 			king_attack_map &= king_attack_map - 1;
 		}
-		if (!Move::decode_check_flag(check_flags, (CHECK_DECODE_ATTRIBUTES)(CHECK_DECODE_ATTRIBUTES::CHECK | CHECK_DECODE_ATTRIBUTES::DOUBLE_CHECK))) {
+		if (!Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::BOTH_CHECK)) {
 			switch (player_side) {
 			case WHITE:
-				if (Move::decode_castle_rights(castling_rights, (CASTLE_DECODE_ATTRIBUTES)(CASTLE_DECODE_ATTRIBUTES::WHITE_KING_SIDE | CASTLE_DECODE_ATTRIBUTES::WHITE_QUEEN_SIDE))) {
+				if (Move::decode_castle_rights(castling_rights, CASTLE_DECODE_ATTRIBUTES::WHITE_BOTH)) {
 					if (this->can_castle(CASTLE_DECODE_ATTRIBUTES::WHITE_KING_SIDE, white_king_side_castle_occupancy, opponent_attacks, piece_position_mask))
 						moves.add_move(Move::encode_move(piece_position, g1, KING, NONE, 0, 0, 0, 1));
 					if (this->can_castle(CASTLE_DECODE_ATTRIBUTES::WHITE_QUEEN_SIDE, white_queen_side_castle_occupancy, opponent_attacks, piece_position_mask))
@@ -383,7 +384,7 @@ void Player::generate_king_moves(uint64_t piece_bitboard, uint64_t opponent_stat
 				}
 				break;
 			case BLACK:
-				if (Move::decode_castle_rights(castling_rights, (CASTLE_DECODE_ATTRIBUTES)(CASTLE_DECODE_ATTRIBUTES::BLACK_KING_SIDE | CASTLE_DECODE_ATTRIBUTES::BLACK_QUEEN_SIDE))) {
+				if (Move::decode_castle_rights(castling_rights, CASTLE_DECODE_ATTRIBUTES::BLACK_BOTH)) {
 					if (this->can_castle(CASTLE_DECODE_ATTRIBUTES::BLACK_KING_SIDE, black_king_side_castle_occupancy, opponent_attacks, piece_position_mask))
 						moves.add_move(Move::encode_move(piece_position, g8, KING, NONE, 0, 0, 0, 1));
 					if (this->can_castle(CASTLE_DECODE_ATTRIBUTES::BLACK_QUEEN_SIDE, black_queen_side_castle_occupancy, opponent_attacks, piece_position_mask))
@@ -504,7 +505,7 @@ uint64_t Player::get_opponent_attacks(unsigned int& check_flags, uint64_t * oppo
 		}
 	}
 	check_flags = Move::encode_check_flag((check_count > 2 ? 2 : check_count), (int)knight_attack, attacker_position, attackers_name);
-
+	in_check = check_count > 0;
 	return opponent_attacks;
 }
 
@@ -687,4 +688,9 @@ uint64_t* Player::get_deep_copy_pieces()
 void Player::remove_piece_from_player_state(uint64_t mask)
 {
 	this->player_state &= ~mask;
+}
+
+bool Player::is_player_in_check()
+{
+	return this->in_check;
 }

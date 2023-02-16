@@ -3,9 +3,9 @@
 
 using namespace std;
 
-Engine::Engine()
+Engine::Engine(string fen_string)
 {
-	Fen_utility fen = Fen_utility("2k5/8/8/8/8/8/8/R3K2R w KQ - 0 11");
+	Fen_utility fen = Fen_utility(fen_string);
 	this->board_state = fen.getBitboard();
 	int enpassant_position = fen.get_enpassant();
 	uint64_t white_state = fen.getBitboard(Side::WHITE);
@@ -36,11 +36,14 @@ Engine::~Engine()
 
 void Engine::run()
 {
+	
 	while (true) {
 		printAsciiBitboard(this->board_state, *white_player, *black_player);
 		Player* current_player = this->white_turn ? white_player : black_player;
 		Player* opponent_player = !this->white_turn ? white_player : black_player;
 		current_player->generate_moves();
+		if (is_game_over(current_player,opponent_player))
+			break;
 		current_player->print_moves();
 		bool correct_move = false;
 		string move;
@@ -49,7 +52,6 @@ void Engine::run()
 			cout << "Please enter your move : ";
 			cin >> move;
 		} while (!(make_move(move, current_player,opponent_player)));
-		//cout << "PREVIOUS DOUBLE PUSH (AFTER MAKE MOVE) : " << Move::decode_move(previous_move, MOVE_DECODE_ATTRIBUTES::DOUBLE_PUSH_FLAG) << endl;
 		white_turn = !white_turn;
 		system("cls");
 	}
@@ -69,6 +71,7 @@ bool Engine::make_move(uint32_t move, Player * current_player, Player* opponent_
 	this->prev_states.push(Game_state(white_state, black_state, this->board_state, this->previous_move, this->white_turn));
 	Positions target_square = (Positions)Move::decode_move(move, MOVE_DECODE_ATTRIBUTES::TARGET_SQUARE);
 	Positions source_square = (Positions)Move::decode_move(move, MOVE_DECODE_ATTRIBUTES::SOURCE_SQUARE);
+	bool castle_flag = (bool)Move::decode_move(move, CASTLE_FLAG);
 	bool capture_flag = (bool)Move::decode_move(move, CAPTURE_FLAG);
 	bool en_passant_flag = (bool)Move::decode_move(move, EN_PASSANT_FLAG);
 	uint64_t* opponent_pieces = opponent_player->get_player_pieces();
@@ -102,6 +105,32 @@ bool Engine::make_move(uint32_t move, Player * current_player, Player* opponent_
 		}
 		if (!found)return false;
 	}
+	else if (castle_flag) {
+		Positions rook_from = OUT_OF_BOUNDS;
+		Positions rook_to = OUT_OF_BOUNDS;
+		if (this->white_turn) {
+			if (target_square == g1) {
+				rook_from = h1;
+				rook_to = f1;
+			}
+			else if (target_square == c1) {
+				rook_from = a1;
+				rook_to = d1;
+			}
+		}
+		else {
+			if (target_square == g8) {
+				rook_from = h8;
+				rook_to = f8;
+			}
+			else if (target_square == c8) {
+				rook_from = a8;
+				rook_to = d8;
+			}
+		}
+		this->board_state &= ~bitmask(rook_from);
+		this->board_state |= bitmask(rook_to);
+	}
 	this->board_state &= ~bitmask(source_square);
 	this->board_state |= bitmask(target_square);
 	current_player->make_move(move);
@@ -124,11 +153,55 @@ void Engine::unmake_move()
 	}
 }
 
-
-
 bool Engine::find_move(string move, uint32_t & move_found, Player * current_player)
 {
 	if (!pgn_utilities::decode_pgn(move)) return false;
 	move_found = current_player->get_moves().get_pgn_moves()[move];
 	return true;
+}
+
+bool Engine::is_game_over(Player* current_player, Player* opponent_player)
+{
+	if (current_player->is_player_in_check() && current_player->get_moves().get_length() == 0) {
+		cout << "CHECK MATE!\n" << (this->white_turn ? "BLACK" : "WHITE") << " WINS\n";
+		return true;
+	}
+	else if (!current_player->is_player_in_check() && current_player->get_moves().get_length() == 0) {
+		cout << "DRAW\nBY STALE MATE\n";
+		return true;
+	}
+	else {
+		bool no_pawns = false;
+		bool no_rooks = false;
+		bool no_bishops = false;
+		bool no_queens = false;
+		bool no_knights = false;
+		if (!current_player->get_player_pieces()[PAWN] && !opponent_player->get_player_pieces()[PAWN])
+			no_pawns = true;
+		if (!current_player->get_player_pieces()[BISHOP] && !opponent_player->get_player_pieces()[BISHOP])
+			no_bishops = true;
+		if (!current_player->get_player_pieces()[QUEEN] && !opponent_player->get_player_pieces()[QUEEN])
+			no_queens = true;
+		if (!current_player->get_player_pieces()[ROOK] && !opponent_player->get_player_pieces()[ROOK])
+			no_rooks = true;
+		if (!current_player->get_player_pieces()[KNIGHT] && !opponent_player->get_player_pieces()[KNIGHT])
+			no_knights = true;
+		if (no_bishops && no_pawns && no_rooks && no_queens && no_knights) {
+			cout << "DRAW\nBY INSUFFICIENT MATERIAL\n";
+			return true;
+		}
+		else if (no_pawns && no_rooks && no_queens && no_knights) {
+			cout << "DRAW\nBY INSUFFICIENT MATERIAL\n";
+			return true;
+		}
+		else if (no_bishops && no_pawns && no_rooks && no_queens) {
+			cout << "DRAW\nBY INSUFFICIENT MATERIAL\n";
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	return false;
 }

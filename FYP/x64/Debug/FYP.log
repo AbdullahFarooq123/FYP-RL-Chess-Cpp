@@ -1,5 +1,2 @@
-﻿  pgn_utilities.cpp
-D:\GitHub\FYP-RL-Chess-Cpp\FYP\pgn_utilities.cpp(46): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-D:\GitHub\FYP-RL-Chess-Cpp\FYP\pgn_utilities.cpp(56): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
-D:\GitHub\FYP-RL-Chess-Cpp\FYP\pgn_utilities.cpp(64): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+﻿  main.cpp
   FYP.vcxproj -> D:\GitHub\FYP-RL-Chess-Cpp\x64\Debug\FYP.exe

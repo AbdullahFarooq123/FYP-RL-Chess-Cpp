@@ -9,6 +9,14 @@ class Fen_utility
 {
 public:
 	static string start_pos;
+	static string kiwipete;
+	static string check_mate;
+	static string stale_mate;
+	static string insufficient_material_bishop;
+	static string insufficient_material_knight;
+	static string insufficient_material_both_bishop;
+	static string insufficient_material_both_knight;
+	static string insufficient_material_kings;
 	static string tricky_castle_move_pos_1;
 	static string tricky_castle_move_pos_2;
 	Fen_utility(std::string fen);

@@ -6,13 +6,13 @@
 class Debug_utilities:protected Engine
 {
 public:
-	Debug_utilities();
+	Debug_utilities(string fen_string);
 	~Debug_utilities();
 	void run_make_unmake_debug();
 	void engine_normal_run();
 	int perft_debug(int depth);
-
 	void perform_custom_perft(int depth);
+	void perform_move_generation_debug(int times);
 
 private:
 	std::unordered_map<std::string, int> move_generations;

@@ -1,9 +1,9 @@
 #include "Debug_utilities.h"
 
 
-
-Debug_utilities::Debug_utilities()
+Debug_utilities::Debug_utilities(string fen_string):Engine(fen_string)
 {
+	
 }
 
 
@@ -69,7 +69,7 @@ int Debug_utilities::perft_debug(int depth)
 	}
 	return nodes;
 }
-
+int index = 0;
 void Debug_utilities::custom_perft_debug(int depth)
 {
 	if (depth == 0) {
@@ -78,8 +78,8 @@ void Debug_utilities::custom_perft_debug(int depth)
 	}
 	Player * current_player = this->white_turn ? white_player : black_player;
 	Player* opponent_player = !this->white_turn ? white_player : black_player;
-
 	current_player->generate_moves();
+	index++;
 	get_move_attr_count(current_player->get_moves());
 	for (uint32_t move : current_player->get_moves()) {
 		make_move(move, current_player,opponent_player);
@@ -91,13 +91,29 @@ void Debug_utilities::custom_perft_debug(int depth)
 
 void Debug_utilities::perform_custom_perft(int depth)
 {
-	custom_perft_debug(depth);
+	Player* current_player = this->white_turn ? white_player : black_player;
+	Player* opponent_player = !this->white_turn ? white_player : black_player;
+	current_player->generate_moves();
+	for (uint32_t move : current_player->get_moves()) {
+		make_move(move, current_player, opponent_player);
+		this->white_turn = !white_turn;
+		custom_perft_debug(depth - 1);
+		unmake_move();
+	}
+	//custom_perft_debug(depth);
 	cout << "DEPTH : " << depth << endl;
 	cout << "NODES : " << nodes << endl;
 	cout << "CAPTURES : " << captures << endl;
 	cout << "ENPASSANTS : " << enpassants << endl;
 	cout << "CASTLES : " << castles << endl;
 	cout << "PROMOTIONS : " << promotions << endl;
+	cout << "TOTAL MOVES : " << index << endl;
+}
+
+void Debug_utilities::perform_move_generation_debug(int times)
+{
+	for (int i = 0; i < times; i++)
+		white_player->generate_moves();
 }
 
 void Debug_utilities::get_move_attr_count(Move moves)

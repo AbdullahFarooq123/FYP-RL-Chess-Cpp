@@ -23,6 +23,7 @@ public:
 	void set_state(Player_state state);
 	uint64_t* get_deep_copy_pieces();
 	void remove_piece_from_player_state(uint64_t mask);
+	bool is_player_in_check();
 private:
 	Side player_side;
 	unsigned int castling_rights;
@@ -33,6 +34,7 @@ private:
 	int enpassant_square;
 	Move moves;
 	Player* opponent_player;
+	bool in_check;
 	void generate_pawn_moves(uint64_t piece_bitboard, uint64_t opponent_state, uint64_t opponent_attacks, unsigned int check_flags, uint64_t attackers_ray, uint64_t kings_ray, uint64_t opponent_sliding_pieces);
 	void generate_knight_moves(uint64_t piece_bitboard, uint64_t opponent_state, uint64_t opponent_attacks, unsigned int check_flags, uint64_t attackers_ray, uint64_t kings_ray, uint64_t opponent_sliding_pieces);
 	void generate_bishop_moves(uint64_t piece_bitboard, uint64_t opponent_state, uint64_t opponent_attacks, unsigned int check_flags, uint64_t attackers_ray, uint64_t kings_ray, uint64_t opponent_sliding_pieces);
