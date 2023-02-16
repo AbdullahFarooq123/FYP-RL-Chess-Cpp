@@ -116,6 +116,21 @@ void Debug_utilities::perform_move_generation_debug(int times)
 		white_player->generate_moves();
 }
 
+void Debug_utilities::print_board_for_fen()
+{
+	printAsciiBitboard(this->board_state, *this->white_player, *this->black_player);
+}
+
+void Debug_utilities::print_bitboard_for_fen()
+{
+	printBitboard(this->board_state);
+}
+
+void Debug_utilities::print_bitboard_for_piece(PieceName name)
+{
+	printBitboard(this->white_player->get_player_pieces()[name]);
+}
+
 void Debug_utilities::get_move_attr_count(Move moves)
 {
 	for (uint32_t move : moves) {

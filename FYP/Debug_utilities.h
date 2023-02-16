@@ -13,6 +13,9 @@ public:
 	int perft_debug(int depth);
 	void perform_custom_perft(int depth);
 	void perform_move_generation_debug(int times);
+	void print_board_for_fen();
+	void print_bitboard_for_fen();
+	void print_bitboard_for_piece(PieceName name);
 
 private:
 	std::unordered_map<std::string, int> move_generations;

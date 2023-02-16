@@ -336,17 +336,28 @@ void Player::generate_rook_moves(uint64_t piece_bitboard, uint64_t opponent_stat
 void Player::generate_queen_moves(uint64_t piece_bitboard, uint64_t opponent_state, uint64_t opponent_attacks, unsigned int check_flags, uint64_t attackers_ray, uint64_t kings_ray, uint64_t opponent_sliding_pieces)
 {
 	while (piece_bitboard) {
-		int piece_position = get_least_bit_index(piece_bitboard);
+		Positions piece_position = (Positions)get_least_bit_index(piece_bitboard);
+		uint64_t piece_mask = bitmask(piece_position);
 		uint64_t queen_attack_map = get_bishop_attacks(piece_position, *this->board_state) | get_rook_attacks(piece_position, *this->board_state);
+		uint64_t ray_opposite_to_king_square = 0ull;
 		queen_attack_map &= ~this->player_state;
 		queen_attack_map &= attackers_ray;
 		if (Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::KNIGHT_CHECK) & queen_attack_map)
 			queen_attack_map &= bitmask((Positions)Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::ATTACKER_POSITION));
-		while (queen_attack_map) {
-			int attack_position = get_least_bit_index(queen_attack_map);
-			bool is_attack_position = opponent_state & bitmask(attack_position);
-			moves.add_move(Move::encode_move(piece_position, attack_position, QUEEN, NONE, is_attack_position, 0, 0, 0));
-			queen_attack_map &= queen_attack_map - 1;
+		if (queen_attack_map) {
+			bool possible_pin = kings_ray & bitmask(piece_position);
+			if (possible_pin)
+				ray_opposite_to_king_square = generate_ray_opposite_to_kings_square(piece_position, opponent_sliding_pieces, piece_mask);
+			if (ray_opposite_to_king_square & opponent_sliding_pieces)
+				queen_attack_map &= ray_opposite_to_king_square;
+			if (Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::KNIGHT_CHECK) & queen_attack_map)
+				queen_attack_map &= bitmask((Positions)Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::ATTACKER_POSITION));
+			while (queen_attack_map) {
+				int attack_position = get_least_bit_index(queen_attack_map);
+				bool is_attack_position = opponent_state & bitmask(attack_position);
+				moves.add_move(Move::encode_move(piece_position, attack_position, QUEEN, NONE, is_attack_position, 0, 0, 0));
+				queen_attack_map &= queen_attack_map - 1;
+			}
 		}
 		piece_bitboard &= piece_bitboard - 1;
 	}
