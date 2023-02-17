@@ -12,7 +12,8 @@ Move::Move()
 Move::~Move()
 {
 }
-
+//   castle   enpassant   double push  Capture  Promotion piece  piece_name   Target sq  Source sq
+//     0          0             0         0          0000           0000       000000     000000
 uint32_t Move::encode_move(uint32_t source_square, uint32_t target_square, uint32_t piece_name, uint32_t promotion_piece_name, uint32_t capture_flag, uint32_t double_push_flag, uint32_t enpassant_flag, uint32_t castle_flag)
 {
 	return source_square | (target_square << 6) | (piece_name << 12) | (promotion_piece_name << 16) | (capture_flag << 20) | (double_push_flag << 21) | (enpassant_flag << 22) | (castle_flag << 23);
@@ -69,7 +70,8 @@ unsigned int Move::decode_check_flag(unsigned int check_flag, CHECK_DECODE_ATTRI
 		return 0;
 	}
 }
-
+// B-Queen Side	   B-King Side    W-Queen Side    W-King Side
+//    0                 0              0              0
 unsigned int Move::encode_castle_rights(unsigned int W_O_O, unsigned int W_O_O_O, unsigned int B_O_O, unsigned int B_O_O_O)
 {
 	return W_O_O | (W_O_O_O<<1) | (B_O_O << 2) | (B_O_O_O<<3);

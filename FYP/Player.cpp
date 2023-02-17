@@ -64,7 +64,7 @@ void Player::make_move(uint32_t move)
 	Positions target_square = (Positions)Move::decode_move(move, TARGET_SQUARE);
 	PieceName piece_name = (PieceName)Move::decode_move(move, PIECE_NAME);
 	PieceName promotion_piece_name = (PieceName)Move::decode_move(move, PROMOTION_PIECE_NAME);
-	bool is_promotion = (this->player_side == WHITE && (source_square>=a7&&source_square<=h7))|| (this->player_side == BLACK && (source_square >= a2 && source_square <= h2));
+	bool is_promotion = piece_name == PAWN?(this->player_side == WHITE && (source_square>=a7&&source_square<=h7))|| (this->player_side == BLACK && (source_square >= a2 && source_square <= h2)):false;
 	bool castle_flag = (bool)Move::decode_move(move, CASTLE_FLAG);
 	if (piece_name == KING || piece_name == ROOK) {
 		switch (player_side)

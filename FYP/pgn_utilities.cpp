@@ -34,8 +34,8 @@ bool pgn_utilities::decode_pgn(std::string move)
 {
 	std::string pieces = "PNBRQK";
 	if ('O' == move[0]) {
-		if ((move.find("O-O") != std::string::npos));
-		else if (move.find("O-O-O") != std::string::npos);
+		if (move == "O-O");
+		else if (move == "O-O-O");
 		else {
 			std::cout << "Invalid move!" << std::endl;
 			return false;
