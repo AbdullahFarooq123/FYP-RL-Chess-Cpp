@@ -17,7 +17,8 @@ public:
 	void print_bitboard_for_fen();
 	void print_bitboard_for_piece(PieceName name);
 	void pgn_run_on();
-
+	void run_game_pgn(vector<string> game);
+	void debug_move_generation(int moves_tested);
 private:
 	std::unordered_map<std::string, int> move_generations;
 	void get_move_attr_count(Move moves);
@@ -27,6 +28,5 @@ private:
 	int enpassants = 0;
 	int castles = 0;
 	int promotions = 0;
-
 };
 

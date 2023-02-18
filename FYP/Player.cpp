@@ -571,6 +571,7 @@ uint64_t Player::get_attackers_ray(unsigned int check_flags)
 
 uint64_t Player::get_piece_attacks(PieceName piece_name, Positions piece_position)
 {
+	uint64_t player_pieces_without_king = this->player_state & ~bitmask(get_least_bit_index(this->player_pieces_state[KING]));
 	switch (piece_name)
 	{
 	case PAWN:
@@ -580,11 +581,11 @@ uint64_t Player::get_piece_attacks(PieceName piece_name, Positions piece_positio
 	case KING:
 		return king_attack_maps[piece_position];
 	case BISHOP:
-		return get_bishop_attacks(piece_position, 0ull);
+		return get_bishop_attacks(piece_position, player_pieces_without_king);
 	case ROOK:
-		return get_rook_attacks(piece_position, 0ull);
+		return get_rook_attacks(piece_position, player_pieces_without_king);
 	case QUEEN:
-		return get_rook_attacks(piece_position, 0ull) | get_bishop_attacks(piece_position, 0ull);
+		return get_rook_attacks(piece_position, player_pieces_without_king) | get_bishop_attacks(piece_position, player_pieces_without_king);
 	default:
 		return 0ull;
 	}
@@ -645,11 +646,11 @@ uint64_t Player::generate_ray_opposite_to_kings_square(Positions piece_position,
 			if ((ray_mask & *this->board_state) ||
 				(((ray_mask & (left_edge | top_edge)) && (file_direction == -1 && rank_direction == 1))
 					||
-					((ray_mask & (right_edge | top_edge)) && (file_direction == 1 && rank_direction == 1))
+					((ray_mask & (right_edge | top_edge)) && (file_direction == 1 && rank_direction == -1))
 					||
 					((ray_mask & (right_edge | bottom_edge)) && (file_direction == -1 && rank_direction == -1))
 					||
-					((ray_mask & (left_edge | bottom_edge)) && (file_direction == -1 && rank_direction == -1))))
+					((ray_mask & (left_edge | bottom_edge)) && (file_direction == 1 && rank_direction == 1))))
 				break;
 			square += 8 * rank_direction + file_direction;
 			ray_mask = bitmask(square);

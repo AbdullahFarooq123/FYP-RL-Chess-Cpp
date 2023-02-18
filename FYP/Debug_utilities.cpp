@@ -162,3 +162,20 @@ void Debug_utilities::get_move_attr_count(Move moves)
 void Debug_utilities::pgn_run_on() {
 	run_pgn();
 }
+
+void Debug_utilities::run_game_pgn(vector<string> game)
+{
+	run_from_pgn(game);
+}
+
+void Debug_utilities::debug_move_generation(int moves_tested)
+{
+	printAsciiBitboard(this->board_state, *white_player, *black_player);
+	Player* current_player = this->white_turn ? white_player : black_player;
+	Player* opponent_player = !this->white_turn ? white_player : black_player;
+	current_player->generate_moves();
+	if (current_player->get_moves().get_length() == moves_tested)
+		cout << "CORRECT NO OF MOVES GENERATED!"<<endl;
+	else
+		cout << "INCORRECT NO OF MOVES GENERATED!" << endl;
+}
