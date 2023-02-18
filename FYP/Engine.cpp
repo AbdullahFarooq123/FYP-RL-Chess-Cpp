@@ -316,17 +316,18 @@ bool Engine::parse_pgn_move(string move, uint32_t& return_move, Player* current_
 			return false;
 		}
 	}
+
 	for (uint32_t move : current_player->get_moves()) {
 		PieceName current_piecename = (PieceName)Move::decode_move(move, MOVE_DECODE_ATTRIBUTES::PIECE_NAME);
 		if (current_piecename == piece_to_move) {
 			bool this_move = false;
 			Positions my_target = (Positions)Move::decode_move(move, MOVE_DECODE_ATTRIBUTES::TARGET_SQUARE);
-			if (source_square == OUT_OF_BOUNDS&&file!=-1) {
+			if (source_square == OUT_OF_BOUNDS&&file!=-1&&promotion_piece_name==NONE) {
 				int current_file = Move::decode_move(move, MOVE_DECODE_ATTRIBUTES::SOURCE_SQUARE)%8;
 				if (current_file == file && my_target == target_square)
 					this_move = true;
 			}
-			else if (source_square == OUT_OF_BOUNDS && rank != -1) {
+			else if (source_square == OUT_OF_BOUNDS && rank != -1 && promotion_piece_name == NONE) {
 				Positions source_square = (Positions)Move::decode_move(move, MOVE_DECODE_ATTRIBUTES::SOURCE_SQUARE);
 				int current_rank =  8-(source_square / 8);
 				if (current_rank == rank && my_target == target_square)
@@ -390,21 +391,24 @@ void Engine::run_pgn()
 	}
 }
 
-void Engine::run_from_pgn(vector<string> game)
+void Engine::run_from_pgn(vector<string> game, int game_no)
 {
 	int move_index = 0;
 	while (true) {
 		Player* current_player = this->white_turn ? white_player : black_player;
 		Player* opponent_player = !this->white_turn ? white_player : black_player;
 		current_player->generate_moves();
-		if (is_game_over(current_player, opponent_player) || (move_index==game.size()))
+		if ((move_index==game.size()))
 			break;
 		bool correct_move = false;
 		uint32_t move;
-		//printAsciiBitboard(this->board_state, *white_player, *black_player, false, white_turn);
-		//cout << "MOVE : " << game[move_index] << endl;
-		//getchar();
-		//system("cls");
+		//if (game[move_index] == "dxe8=Q+") {
+		//	printAsciiBitboard(this->board_state, *white_player, *black_player, false, white_turn);
+		//	cout << "MOVE : " << game[move_index] << endl;
+		//	getchar();
+		//	system("cls");
+		//}
+		//dxe8=Q+
 		while (!parse_pgn_move(game[move_index], move, current_player)) {
 			cout << "PLAYER TURN : " << (this->white_turn ? "WHITE" : "BLACK") << endl;
 			printAsciiBitboard(this->board_state, *white_player, *black_player, false, white_turn);
@@ -417,5 +421,5 @@ void Engine::run_from_pgn(vector<string> game)
 		make_move(move, current_player, opponent_player);
 		white_turn = !white_turn;
 	}
-	cout << "GAME COMPLETED!" << endl;
+	cout << game_no << ".GAME COMPLETED!" << endl;
 }

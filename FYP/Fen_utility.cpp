@@ -73,6 +73,11 @@ int Fen_utility::get_castle_rights()
 	return Move::encode_castle_rights(white_king_side_rights, white_queen_side_rights, black_king_side_rights, black_queen_side_rights);
 }
 
+string Fen_utility::get_fen(uint64_t bitboard, uint64_t* white_pieces_state, uint64_t* black_pieces_state)
+{
+	return string();
+}
+
 bool Fen_utility::getSideAndPieceBitmap(Side side, Piece piece, char fen_char)
 {
 	if (side != Side::BOTH || piece != Piece::ALL) {

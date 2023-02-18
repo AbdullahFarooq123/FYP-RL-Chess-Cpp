@@ -10,7 +10,7 @@ public:
 	Engine(string fen_string=Fen_utility::start_pos);
 	~Engine();
 	void run();
-	void run_from_pgn(vector<string> game);
+	void run_from_pgn(vector<string> game, int game_no);
 
 protected:
 	Player* white_player;

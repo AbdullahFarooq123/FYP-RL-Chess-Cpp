@@ -1,9 +1,9 @@
 #include "Debug_utilities.h"
 
-
+string fen;
 Debug_utilities::Debug_utilities(string fen_string) :Engine(fen_string)
 {
-
+	fen = fen_string;
 }
 
 
@@ -108,17 +108,17 @@ void Debug_utilities::perform_custom_perft(int depth)
 		custom_perft_debug(depth - 1);
 		long old_nodes = nodes - cummulative_nodes;
 		unmake_move();
-		cout << "Move : " << str_positions[Move::decode_move(move, MOVE_DECODE_ATTRIBUTES::SOURCE_SQUARE)] << str_positions[Move::decode_move(move, MOVE_DECODE_ATTRIBUTES::TARGET_SQUARE)] << "\tNodes : " << old_nodes << endl;
+		//cout << "Move : " << str_positions[Move::decode_move(move, MOVE_DECODE_ATTRIBUTES::SOURCE_SQUARE)] << str_positions[Move::decode_move(move, MOVE_DECODE_ATTRIBUTES::TARGET_SQUARE)] << "\tNodes : " << old_nodes << endl;
 	}
 	//custom_perft_debug(depth);
-	cout << "DEPTH : " << depth << endl;
-	cout << "NODES : " << nodes << endl;
-	cout << "CAPTURES : " << captures << endl;
-	cout << "ENPASSANTS : " << enpassants << endl;
-	cout << "CASTLES : " << castles << endl;
-	cout << "PROMOTIONS : " << promotions << endl;
-	cout << "Checks : " << check << endl;
-	cout << "Check Mates : " << check_mate << endl;
+	cout << depth;
+	cout << ".NODES : " << nodes << endl;
+	//cout << "CAPTURES : " << captures << endl;
+	//cout << "ENPASSANTS : " << enpassants << endl;
+	//cout << "CASTLES : " << castles << endl;
+	//cout << "PROMOTIONS : " << promotions << endl;
+	//cout << "Checks : " << check << endl;
+	//cout << "Check Mates : " << check_mate << endl;
 
 
 }
@@ -163,19 +163,21 @@ void Debug_utilities::pgn_run_on() {
 	run_pgn();
 }
 
-void Debug_utilities::run_game_pgn(vector<string> game)
+void Debug_utilities::run_game_pgn(vector<string> game, int game_no)
 {
-	run_from_pgn(game);
+	run_from_pgn(game, game_no);
 }
 
 void Debug_utilities::debug_move_generation(int moves_tested)
 {
-	printAsciiBitboard(this->board_state, *white_player, *black_player);
 	Player* current_player = this->white_turn ? white_player : black_player;
 	Player* opponent_player = !this->white_turn ? white_player : black_player;
 	current_player->generate_moves();
-	if (current_player->get_moves().get_length() == moves_tested)
-		cout << "CORRECT NO OF MOVES GENERATED!"<<endl;
-	else
-		cout << "INCORRECT NO OF MOVES GENERATED!" << endl;
+	if (current_player->get_moves().get_length() == moves_tested);
+	else {
+		cout << fen << endl;
+		//printAsciiBitboard(this->board_state, *white_player, *black_player);
+		//current_player->print_moves();
+		//cout << "INCORRECT NO OF MOVES GENERATED!" << endl;
+	}
 }

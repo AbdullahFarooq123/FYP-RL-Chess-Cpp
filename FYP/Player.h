@@ -47,6 +47,7 @@ private:
 	uint64_t get_attackers_ray(unsigned int check_flags);
 	uint64_t get_piece_attacks(PieceName piece_name, Positions piece_position);
 	uint64_t generate_ray_opposite_to_kings_square(Positions piece_position, uint64_t opponent_pieces, uint64_t piece_bitmask, Directions &direction);
+	uint64_t get_ray_in_the_direction_of_king_square(Positions piece_position,PieceName piece_name);
 	bool is_discovered_check(uint64_t* opponent_pieces, Directions direction, uint64_t ray_opposite_to_king_square);
 };
 

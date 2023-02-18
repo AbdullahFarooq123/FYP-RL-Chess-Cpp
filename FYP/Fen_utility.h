@@ -25,6 +25,7 @@ public:
 	Side get_player_turn();
 	int get_enpassant();
 	int get_castle_rights();
+	static string get_fen(uint64_t bitboard, uint64_t* white_pieces_state, uint64_t* black_pieces_state);
 private:
 	std::string fen;
 	bool getSideAndPieceBitmap(Side, Piece, char);

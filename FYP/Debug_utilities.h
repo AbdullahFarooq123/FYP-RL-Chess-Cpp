@@ -17,7 +17,7 @@ public:
 	void print_bitboard_for_fen();
 	void print_bitboard_for_piece(PieceName name);
 	void pgn_run_on();
-	void run_game_pgn(vector<string> game);
+	void run_game_pgn(vector<string> game, int game_no);
 	void debug_move_generation(int moves_tested);
 private:
 	std::unordered_map<std::string, int> move_generations;

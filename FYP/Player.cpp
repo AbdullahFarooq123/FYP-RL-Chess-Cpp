@@ -167,8 +167,11 @@ void Player::generate_pawn_moves(uint64_t piece_bitboard, uint64_t opponent_stat
 		if (possible_pin) {
 			Directions direction = AMBIGIOUS;
 			ray_opposite_to_king_square = generate_ray_opposite_to_kings_square(piece_position, opponent_sliding_pieces, piece_mask, direction);
-			if (is_discovered_check(opponent_pieces, direction, ray_opposite_to_king_square))
-				pawn_attack_map &= ray_opposite_to_king_square;
+			if (is_pinned = is_discovered_check(opponent_pieces, direction, ray_opposite_to_king_square)) {
+				uint64_t ray_in_the_direction_of_king_square = get_ray_in_the_direction_of_king_square(piece_position, BISHOP);
+
+				pawn_attack_map &= (ray_opposite_to_king_square| ray_in_the_direction_of_king_square);
+			}
 		}
 		if (pawn_attack_map) {
 			if (Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::KNIGHT_CHECK) & pawn_attack_map)
@@ -203,8 +206,11 @@ void Player::generate_pawn_moves(uint64_t piece_bitboard, uint64_t opponent_stat
 			double_push_move &= ~*this->board_state;
 			if (quite_move) {
 				quite_move &= attackers_ray;
-				if (is_pinned)
-					quite_move &= ray_opposite_to_king_square;
+				if (is_pinned) {
+					uint64_t ray_in_the_direction_of_king_square = get_ray_in_the_direction_of_king_square(piece_position, ROOK);
+
+					quite_move &= (ray_opposite_to_king_square| ray_in_the_direction_of_king_square);
+				}
 				int move_position = get_least_bit_index(quite_move);
 				if (move_position != -1) {
 					if (is_promotion)
@@ -295,8 +301,10 @@ void Player::generate_bishop_moves(uint64_t piece_bitboard, uint64_t opponent_st
 			if (possible_pin) {
 				Directions direction = AMBIGIOUS;
 				ray_opposite_to_king_square = generate_ray_opposite_to_kings_square(piece_position, opponent_sliding_pieces, piece_mask, direction);
-				if (is_discovered_check(opponent_pieces, direction, ray_opposite_to_king_square))
-					bishop_attack_map &= ray_opposite_to_king_square;
+				if (is_discovered_check(opponent_pieces, direction, ray_opposite_to_king_square)) {
+					uint64_t ray_in_the_direction_of_king_square = get_ray_in_the_direction_of_king_square(piece_position, BISHOP);
+					bishop_attack_map &= (ray_opposite_to_king_square| ray_in_the_direction_of_king_square);
+				}
 			}
 
 			if (Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::KNIGHT_CHECK) & bishop_attack_map)
@@ -326,8 +334,10 @@ void Player::generate_rook_moves(uint64_t piece_bitboard, uint64_t opponent_stat
 			if (possible_pin) {
 				Directions direction = AMBIGIOUS;
 				ray_opposite_to_king_square = generate_ray_opposite_to_kings_square(piece_position, opponent_sliding_pieces, piece_mask, direction);
-				if (is_discovered_check(opponent_pieces, direction, ray_opposite_to_king_square))
-					rook_attack_map &= ray_opposite_to_king_square;
+				if (is_discovered_check(opponent_pieces, direction, ray_opposite_to_king_square)) {
+					uint64_t ray_in_the_direction_of_king_square = get_ray_in_the_direction_of_king_square(piece_position, ROOK);
+					rook_attack_map &= (ray_opposite_to_king_square|ray_in_the_direction_of_king_square);
+				}
 			}
 
 			if (Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::KNIGHT_CHECK) & rook_attack_map)
@@ -349,7 +359,6 @@ void Player::generate_queen_moves(uint64_t piece_bitboard, uint64_t opponent_sta
 		Positions piece_position = (Positions)get_least_bit_index(piece_bitboard);
 		uint64_t piece_mask = bitmask(piece_position);
 		uint64_t queen_attack_map = get_bishop_attacks(piece_position, *this->board_state) | get_rook_attacks(piece_position, *this->board_state);
-		uint64_t ray_opposite_to_king_square = 0ull;
 		queen_attack_map &= ~this->player_state;
 		queen_attack_map &= attackers_ray;
 		if (Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::KNIGHT_CHECK) & queen_attack_map)
@@ -358,9 +367,11 @@ void Player::generate_queen_moves(uint64_t piece_bitboard, uint64_t opponent_sta
 			bool possible_pin = kings_ray & bitmask(piece_position);
 			if (possible_pin) {
 				Directions direction = AMBIGIOUS;
-				ray_opposite_to_king_square = generate_ray_opposite_to_kings_square(piece_position, opponent_sliding_pieces, piece_mask, direction);
-				if (is_discovered_check(opponent_pieces, direction, ray_opposite_to_king_square))
-					queen_attack_map &= ray_opposite_to_king_square;
+				uint64_t ray_opposite_to_king_square = generate_ray_opposite_to_kings_square(piece_position, opponent_sliding_pieces, piece_mask, direction);
+				if (is_discovered_check(opponent_pieces, direction, ray_opposite_to_king_square)) {
+					uint64_t ray_in_the_direction_of_king_square = get_ray_in_the_direction_of_king_square(piece_position, QUEEN);
+					queen_attack_map &= (ray_opposite_to_king_square| ray_in_the_direction_of_king_square);
+				}
 			}
 
 			if (Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::KNIGHT_CHECK) & queen_attack_map)
@@ -423,6 +434,27 @@ void Player::generate_king_moves(uint64_t piece_bitboard, uint64_t opponent_stat
 
 bool Player::can_castle(CASTLE_DECODE_ATTRIBUTES attribute_name, uint64_t castle_occupancy, uint64_t opponent_attacks, uint64_t king_position_mask)
 {
+	//system("cls");
+	//cout << "CASTLE RIGHTS : " << endl;
+	//print_bits(Move::decode_castle_rights(castling_rights, attribute_name));
+	//cout << "CASTLE OCCUPANCY : " << endl;
+	//printBitboard(castle_occupancy);
+	//cout << "BOARD STATE : " << endl;
+	//printBitboard(*this->board_state);
+	//cout << "INVERSE BOARD STATE : " << endl;
+	//printBitboard(~*this->board_state);
+	//cout << "OPPONENT ATTACKS : " << endl;
+	//printBitboard(opponent_attacks);
+	//cout << "INVERSE OPPONENT ATTACKS : " << endl;
+	//printBitboard(~opponent_attacks);
+	//cout << "KING MASK : " << endl;
+	//printBitboard(king_position_mask);
+	//cout << "BOARD STATE & CASTLE OCCUPANCY : " << endl;
+	//printBitboard(~*this->board_state & castle_occupancy);
+	//cout << "CASTLE OCCUPANCY & INVERSE OF OPPONENT ATTACKS : " << endl;
+	//printBitboard(castle_occupancy & ~opponent_attacks);
+	//cout << "KING POSIITON MASK & OPPONENTS ATTACKS : " << endl;
+	//printBitboard(king_position_mask & opponent_attacks);
 	return ((Move::decode_castle_rights(castling_rights, attribute_name)) && ((~*this->board_state & castle_occupancy) == castle_occupancy && castle_occupancy == (castle_occupancy & ~opponent_attacks)) && !(king_position_mask & opponent_attacks));
 }
 
@@ -571,7 +603,7 @@ uint64_t Player::get_attackers_ray(unsigned int check_flags)
 
 uint64_t Player::get_piece_attacks(PieceName piece_name, Positions piece_position)
 {
-	uint64_t player_pieces_without_king = this->player_state & ~bitmask(get_least_bit_index(this->player_pieces_state[KING]));
+	uint64_t player_pieces_without_king = *this->board_state & ~bitmask(get_least_bit_index(this->player_pieces_state[KING]));
 	switch (piece_name)
 	{
 	case PAWN:
@@ -591,7 +623,7 @@ uint64_t Player::get_piece_attacks(PieceName piece_name, Positions piece_positio
 	}
 }
 
-uint64_t Player::generate_ray_opposite_to_kings_square(Positions piece_position, uint64_t opponent_sliding_pieces, uint64_t piece_bitmask, Directions & direction)
+uint64_t Player::generate_ray_opposite_to_kings_square(Positions piece_position, uint64_t opponent_sliding_pieces, uint64_t piece_bitmask, Directions & ray_direction)
 {
 	Positions king_square = (Positions)get_least_bit_index(this->player_pieces_state[KING]);
 
@@ -611,7 +643,7 @@ uint64_t Player::generate_ray_opposite_to_kings_square(Positions piece_position,
 			square += 8 * direction;
 			ray_mask = bitmask(square);
 		}
-		direction = STRAIGHT;
+		ray_direction = STRAIGHT;
 	}
 	else if (delta_rank == 0) {
 		int direction = (delta_file > 0) ? -1 : 1;
@@ -626,7 +658,7 @@ uint64_t Player::generate_ray_opposite_to_kings_square(Positions piece_position,
 			square += direction;
 			ray_mask = bitmask(square);
 		}
-		direction = STRAIGHT;
+		ray_direction = STRAIGHT;
 	}
 	else if (abs(delta_file) == abs(delta_rank)) {
 		int file_direction = (delta_file > 0) ? -1 : 1;
@@ -644,19 +676,54 @@ uint64_t Player::generate_ray_opposite_to_kings_square(Positions piece_position,
 		while (true) {
 			piece_ray |= ray_mask;
 			if ((ray_mask & *this->board_state) ||
-				(((ray_mask & (left_edge | top_edge)) && (file_direction == -1 && rank_direction == 1))
+				(((ray_mask & (left_edge | bottom_edge)) && (file_direction == -1 && rank_direction == 1))
 					||
 					((ray_mask & (right_edge | top_edge)) && (file_direction == 1 && rank_direction == -1))
 					||
-					((ray_mask & (right_edge | bottom_edge)) && (file_direction == -1 && rank_direction == -1))
+					((ray_mask & (left_edge | top_edge)) && (file_direction == -1 && rank_direction == -1))
 					||
-					((ray_mask & (left_edge | bottom_edge)) && (file_direction == 1 && rank_direction == 1))))
+					((ray_mask & (right_edge | bottom_edge)) && (file_direction == 1 && rank_direction == 1))))
 				break;
 			square += 8 * rank_direction + file_direction;
 			ray_mask = bitmask(square);
 		}
-		direction = DIAGONAL;
+		ray_direction = DIAGONAL;
 	}
+	return piece_ray;
+}
+
+uint64_t Player::get_ray_in_the_direction_of_king_square(Positions piece_position, PieceName piece_name)
+{
+	int king_square = get_least_bit_index(this->player_pieces_state[KING]);
+	uint64_t piece_ray = 0ull;
+	int delta_file = king_square % 8 - piece_position % 8;
+	int delta_rank = king_square / 8 - piece_position / 8;
+	if ((delta_file == 0) && (piece_name == QUEEN || piece_name == ROOK)) {
+		int direction = (delta_rank > 0) ? 1 : -1;
+		int square = piece_position + 8 * direction;
+		while (square != king_square) {
+			piece_ray |= (1ull << square);
+			square += 8 * direction;
+		}
+	}
+	else if ((delta_rank == 0) && (piece_name == QUEEN || piece_name == ROOK)) {
+		int direction = (delta_file > 0) ? 1 : -1;
+		int square = piece_position + direction;
+		while (square != king_square) {
+			piece_ray |= (1ull << square);
+			square += direction;
+		}
+	}
+	else if ((abs(delta_file) == abs(delta_rank))&&(piece_name==QUEEN||piece_name==BISHOP)) {
+		int file_direction = (delta_file > 0) ? 1 : -1;
+		int rank_direction = (delta_rank > 0) ? 1 : -1;
+		int square = piece_position + 8 * rank_direction + file_direction;
+		while (square != king_square) {
+			piece_ray |= (1ull << square);
+			square += 8 * rank_direction + file_direction;
+		}
+	}
+	piece_ray &= ~this->player_pieces_state[KING];
 	return piece_ray;
 }
 
