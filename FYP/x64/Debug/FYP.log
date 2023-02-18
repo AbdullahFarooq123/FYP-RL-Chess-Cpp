@@ -1,2 +1,8 @@
-﻿  Debug_utilities.cpp
+﻿  Engine.cpp
+D:\GitHub\FYP-RL-Chess-Cpp\FYP\Engine.cpp(242): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:\GitHub\FYP-RL-Chess-Cpp\FYP\Engine.cpp(248): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:\GitHub\FYP-RL-Chess-Cpp\FYP\Engine.cpp(261): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:\GitHub\FYP-RL-Chess-Cpp\FYP\Engine.cpp(270): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:\GitHub\FYP-RL-Chess-Cpp\FYP\Engine.cpp(276): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:\GitHub\FYP-RL-Chess-Cpp\FYP\Engine.cpp(283): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
   FYP.vcxproj -> D:\GitHub\FYP-RL-Chess-Cpp\x64\Debug\FYP.exe

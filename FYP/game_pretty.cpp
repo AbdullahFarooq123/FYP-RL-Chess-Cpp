@@ -26,10 +26,10 @@ void printBitboard(uint64_t bitboard) {
 	print_bits(bitboard, "\n", "0b");
 	cout << "\t Decimal : " << bitboard << endl << endl;
 }
-void printAsciiBitboard(uint64_t bitboard, Player white_player,Player black_player) {
-	for (int i = 0; i <= 7; i++) {
+void printAsciiBitboard(uint64_t bitboard, Player white_player,Player black_player, bool invert_board , bool white_turn ) {
+	for (int i = (invert_board?(white_turn?0:7):0); (invert_board ? (white_turn ? i<=7 : i>=0) : i <= 7); (invert_board ? (white_turn ? i++ : i--) : i++)) {
 		cout << " " << 8 - i << "  ";
-		for (int j = 0; j <= 7; j++) {
+		for (int j = (invert_board ? (white_turn ? 0 : 7) : 0); (invert_board ? (white_turn ? j <= 7 : j >= 0) : j <= 7); (invert_board ? (white_turn ? j++ : j--) : j++)) {
 			uint64_t position_mask = bitmask(i * 8 + j);
 			if ((bitboard >> (i * 8 + j)) & 1) {
 				bool printed = false;
@@ -53,7 +53,7 @@ void printAsciiBitboard(uint64_t bitboard, Player white_player,Player black_play
 		printf("\n");
 	}
 	cout << "\n     ";
-	for (int i = 'a'; i <= 'h'; i++)
+	for (int i = (invert_board ? (white_turn ? 'a' : 'h') : 'a'); (invert_board ? (white_turn ? i <= 'h' : i >= 'a') : i <= 'h'); (invert_board ? (white_turn ? i++ : i--) : i++))
 		cout << (char)i << "  ";
 	cout << endl << endl;
 }

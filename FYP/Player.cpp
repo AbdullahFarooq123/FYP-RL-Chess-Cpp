@@ -37,22 +37,22 @@ void Player::generate_moves()
 		switch (piece_name)
 		{
 		case PieceName::PAWN:
-			generate_pawn_moves(piece_bitboard, opponent_state, opponent_attacks, check_flags, attackers_ray, kings_ray, opponent_sliding_pieces);
+			generate_pawn_moves(piece_bitboard, opponent_state, opponent_attacks, check_flags, attackers_ray, kings_ray, opponent_sliding_pieces, opponent_pieces);
 			break;
 		case PieceName::KNIGHT:
-			generate_knight_moves(piece_bitboard, opponent_state, opponent_attacks, check_flags, attackers_ray, kings_ray, opponent_sliding_pieces);
+			generate_knight_moves(piece_bitboard, opponent_state, opponent_attacks, check_flags, attackers_ray, kings_ray, opponent_sliding_pieces, opponent_pieces);
 			break;
 		case PieceName::BISHOP:
-			generate_bishop_moves(piece_bitboard, opponent_state, opponent_attacks, check_flags, attackers_ray, kings_ray, opponent_sliding_pieces);
+			generate_bishop_moves(piece_bitboard, opponent_state, opponent_attacks, check_flags, attackers_ray, kings_ray, opponent_sliding_pieces, opponent_pieces);
 			break;
 		case PieceName::ROOK:
-			generate_rook_moves(piece_bitboard, opponent_state, opponent_attacks, check_flags, attackers_ray, kings_ray, opponent_sliding_pieces);
+			generate_rook_moves(piece_bitboard, opponent_state, opponent_attacks, check_flags, attackers_ray, kings_ray, opponent_sliding_pieces, opponent_pieces);
 			break;
 		case PieceName::QUEEN:
-			generate_queen_moves(piece_bitboard, opponent_state, opponent_attacks, check_flags, attackers_ray, kings_ray, opponent_sliding_pieces);
+			generate_queen_moves(piece_bitboard, opponent_state, opponent_attacks, check_flags, attackers_ray, kings_ray, opponent_sliding_pieces, opponent_pieces);
 			break;
 		case PieceName::KING:
-			generate_king_moves(piece_bitboard, opponent_state, opponent_attacks, check_flags, attackers_ray, kings_ray, opponent_sliding_pieces);
+			generate_king_moves(piece_bitboard, opponent_state, opponent_attacks, check_flags, attackers_ray, kings_ray, opponent_sliding_pieces, opponent_pieces);
 			break;
 		}
 	}
@@ -64,7 +64,7 @@ void Player::make_move(uint32_t move)
 	Positions target_square = (Positions)Move::decode_move(move, TARGET_SQUARE);
 	PieceName piece_name = (PieceName)Move::decode_move(move, PIECE_NAME);
 	PieceName promotion_piece_name = (PieceName)Move::decode_move(move, PROMOTION_PIECE_NAME);
-	bool is_promotion = piece_name == PAWN?(this->player_side == WHITE && (source_square>=a7&&source_square<=h7))|| (this->player_side == BLACK && (source_square >= a2 && source_square <= h2)):false;
+	bool is_promotion = piece_name == PAWN ? (this->player_side == WHITE && (source_square >= a7 && source_square <= h7)) || (this->player_side == BLACK && (source_square >= a2 && source_square <= h2)) : false;
 	bool castle_flag = (bool)Move::decode_move(move, CASTLE_FLAG);
 	if (piece_name == KING || piece_name == ROOK) {
 		switch (player_side)
@@ -126,13 +126,13 @@ void Player::print_moves()
 {
 	cout << "*************************************************************************************************************************************\n";
 	cout << "*                                                                                                                                   *\n";
-	cout <<"*"<< add_str_padding("MOVES TABLE", string("***********************************************************************************************************************************").length())<<"*"<<endl;
+	cout << "*" << add_str_padding("MOVES TABLE", string("***********************************************************************************************************************************").length()) << "*" << endl;
 	cout << "*                                                                                                                                   *\n";
 	cout << "*************************************************************************************************************************************\n";
 	cout << "*  PIECE NAME  *  SOURCE SQ.  *  TARGET SQ.  *  DOUBLE PUSH  *  ENPASSANT  *  CAPTURE  *  CASTLE  *  PROMOTION PIECE  *  MOVE NAME  *\n";
 	cout << "*************************************************************************************************************************************\n";
 	for (uint32_t move : moves) {
-		string source_square = add_str_padding(str_positions[Move::decode_move(move, SOURCE_SQUARE)],string("  SOURCE SQ.  ").length());
+		string source_square = add_str_padding(str_positions[Move::decode_move(move, SOURCE_SQUARE)], string("  SOURCE SQ.  ").length());
 		string target_square = add_str_padding(str_positions[Move::decode_move(move, TARGET_SQUARE)], string("  TARGET SQ.  ").length());
 		string piece_name = add_str_padding(str_piece_names[Move::decode_move(move, PIECE_NAME)], string("  PIECE NAME  ").length());
 		string promotion_piece_name = add_str_padding(str_piece_names[Move::decode_move(move, PROMOTION_PIECE_NAME)], string("  PROMOTION PIECE  ").length());
@@ -145,30 +145,32 @@ void Player::print_moves()
 	}
 	cout << "*************************************************************************************************************************************\n";
 }
- 
+
 void Player::set_opponent_player(Player * opponent_player)
 {
 	this->opponent_player = opponent_player;
 }
 
-void Player::generate_pawn_moves(uint64_t piece_bitboard, uint64_t opponent_state, uint64_t opponent_attacks, unsigned int check_flags, uint64_t attackers_ray, uint64_t kings_ray, uint64_t opponent_sliding_pieces)
+void Player::generate_pawn_moves(uint64_t piece_bitboard, uint64_t opponent_state, uint64_t opponent_attacks, unsigned int check_flags, uint64_t attackers_ray, uint64_t kings_ray, uint64_t opponent_sliding_pieces, uint64_t * opponent_pieces)
 {
 	while (piece_bitboard) {
 		Positions piece_position = (Positions)get_least_bit_index(piece_bitboard);
 		uint64_t piece_mask = bitmask(piece_position);
 		uint64_t ray_opposite_to_king_square = 0ull;
 		bool is_promotion = (player_side == WHITE) ? piece_mask & before_top_edge : piece_mask & before_bottom_edge;
-		//Pawn Attacks
+		//Pawn Attacks 
 		uint64_t pawn_attack_map = pawn_attack_maps[this->player_side][piece_position];
 		pawn_attack_map &= opponent_state;
 		pawn_attack_map &= attackers_ray;
 		bool possible_pin = kings_ray & bitmask(piece_position);
-		if (possible_pin)
-			ray_opposite_to_king_square = generate_ray_opposite_to_kings_square(piece_position, opponent_sliding_pieces, piece_mask);
-		bool is_pinned = ray_opposite_to_king_square & opponent_sliding_pieces;
-		if (pawn_attack_map) {
-			if (is_pinned)
+		bool is_pinned = false;
+		if (possible_pin) {
+			Directions direction = AMBIGIOUS;
+			ray_opposite_to_king_square = generate_ray_opposite_to_kings_square(piece_position, opponent_sliding_pieces, piece_mask, direction);
+			if (is_discovered_check(opponent_pieces, direction, ray_opposite_to_king_square))
 				pawn_attack_map &= ray_opposite_to_king_square;
+		}
+		if (pawn_attack_map) {
 			if (Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::KNIGHT_CHECK) & pawn_attack_map)
 				pawn_attack_map &= bitmask((Positions)Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::ATTACKER_POSITION));
 			while (pawn_attack_map) {
@@ -180,7 +182,6 @@ void Player::generate_pawn_moves(uint64_t piece_bitboard, uint64_t opponent_stat
 					moves.add_move(Move::encode_move(piece_position, attack_position, PAWN, NONE, 1, 0, 0, 0));
 				pawn_attack_map &= pawn_attack_map - 1;
 			}
-
 		}
 		if ((~Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::DOUBLE_CHECK) & ~Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::KNIGHT_CHECK))) {
 			//Quite and double push moves
@@ -240,7 +241,7 @@ void Player::generate_pawn_moves(uint64_t piece_bitboard, uint64_t opponent_stat
 					uint64_t previous_move_target_square = bitmask(Move::decode_move(*previous_move, TARGET_SQUARE));
 					uint64_t possible_enpassant_bitboard = this->player_side == WHITE ? previous_move_target_square >> 8 : previous_move_target_square << 8;
 					enpassant_capture_move &= possible_enpassant_bitboard;
-					if(enpassant_capture_move)
+					if (enpassant_capture_move)
 						moves.add_move(Move::encode_move(piece_position, get_least_bit_index(enpassant_capture_move), PAWN, NONE, 0, 0, 1, 0));
 				}
 			}
@@ -249,7 +250,7 @@ void Player::generate_pawn_moves(uint64_t piece_bitboard, uint64_t opponent_stat
 	}
 }
 
-void Player::generate_knight_moves(uint64_t piece_bitboard, uint64_t opponent_state, uint64_t opponent_attacks, unsigned int check_flags, uint64_t attackers_ray, uint64_t kings_ray, uint64_t opponent_sliding_pieces)
+void Player::generate_knight_moves(uint64_t piece_bitboard, uint64_t opponent_state, uint64_t opponent_attacks, unsigned int check_flags, uint64_t attackers_ray, uint64_t kings_ray, uint64_t opponent_sliding_pieces, uint64_t * opponent_pieces)
 {
 	while (piece_bitboard) {
 		Positions piece_position = (Positions)get_least_bit_index(piece_bitboard);
@@ -260,10 +261,13 @@ void Player::generate_knight_moves(uint64_t piece_bitboard, uint64_t opponent_st
 		knight_attack_map &= attackers_ray;
 		if (knight_attack_map) {
 			bool possible_pin = kings_ray & bitmask(piece_position);
-			if (possible_pin)
-				ray_opposite_to_king_square = generate_ray_opposite_to_kings_square(piece_position, opponent_sliding_pieces, piece_mask);
-			if (ray_opposite_to_king_square & opponent_sliding_pieces)
-				knight_attack_map &= ray_opposite_to_king_square;
+			if (possible_pin) {
+				Directions direction = AMBIGIOUS;
+				ray_opposite_to_king_square = generate_ray_opposite_to_kings_square(piece_position, opponent_sliding_pieces, piece_mask, direction);
+				if (is_discovered_check(opponent_pieces, direction, ray_opposite_to_king_square))
+					knight_attack_map &= ray_opposite_to_king_square;
+			}
+
 			if (Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::KNIGHT_CHECK) & knight_attack_map)
 				knight_attack_map &= bitmask((Positions)Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::ATTACKER_POSITION));
 			while (knight_attack_map) {
@@ -277,7 +281,7 @@ void Player::generate_knight_moves(uint64_t piece_bitboard, uint64_t opponent_st
 	}
 }
 
-void Player::generate_bishop_moves(uint64_t piece_bitboard, uint64_t opponent_state, uint64_t opponent_attacks, unsigned int check_flags, uint64_t attackers_ray, uint64_t kings_ray, uint64_t opponent_sliding_pieces)
+void Player::generate_bishop_moves(uint64_t piece_bitboard, uint64_t opponent_state, uint64_t opponent_attacks, unsigned int check_flags, uint64_t attackers_ray, uint64_t kings_ray, uint64_t opponent_sliding_pieces, uint64_t * opponent_pieces)
 {
 	while (piece_bitboard) {
 		Positions piece_position = (Positions)get_least_bit_index(piece_bitboard);
@@ -288,10 +292,13 @@ void Player::generate_bishop_moves(uint64_t piece_bitboard, uint64_t opponent_st
 		bishop_attack_map &= attackers_ray;
 		if (bishop_attack_map) {
 			bool possible_pin = kings_ray & bitmask(piece_position);
-			if (possible_pin)
-				ray_opposite_to_king_square = generate_ray_opposite_to_kings_square(piece_position, opponent_sliding_pieces, piece_mask);
-			if (ray_opposite_to_king_square & opponent_sliding_pieces)
-				bishop_attack_map &= ray_opposite_to_king_square;
+			if (possible_pin) {
+				Directions direction = AMBIGIOUS;
+				ray_opposite_to_king_square = generate_ray_opposite_to_kings_square(piece_position, opponent_sliding_pieces, piece_mask, direction);
+				if (is_discovered_check(opponent_pieces, direction, ray_opposite_to_king_square))
+					bishop_attack_map &= ray_opposite_to_king_square;
+			}
+
 			if (Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::KNIGHT_CHECK) & bishop_attack_map)
 				bishop_attack_map &= bitmask((Positions)Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::ATTACKER_POSITION));
 			while (bishop_attack_map) {
@@ -305,7 +312,7 @@ void Player::generate_bishop_moves(uint64_t piece_bitboard, uint64_t opponent_st
 	}
 }
 
-void Player::generate_rook_moves(uint64_t piece_bitboard, uint64_t opponent_state, uint64_t opponent_attacks, unsigned int check_flags, uint64_t attackers_ray, uint64_t kings_ray, uint64_t opponent_sliding_pieces)
+void Player::generate_rook_moves(uint64_t piece_bitboard, uint64_t opponent_state, uint64_t opponent_attacks, unsigned int check_flags, uint64_t attackers_ray, uint64_t kings_ray, uint64_t opponent_sliding_pieces, uint64_t * opponent_pieces)
 {
 	while (piece_bitboard) {
 		Positions piece_position = (Positions)get_least_bit_index(piece_bitboard);
@@ -316,10 +323,13 @@ void Player::generate_rook_moves(uint64_t piece_bitboard, uint64_t opponent_stat
 		rook_attack_map &= attackers_ray;
 		if (rook_attack_map) {
 			bool possible_pin = kings_ray & bitmask(piece_position);
-			if (possible_pin)
-				ray_opposite_to_king_square = generate_ray_opposite_to_kings_square(piece_position, opponent_sliding_pieces, piece_mask);
-			if (ray_opposite_to_king_square & opponent_sliding_pieces)
-				rook_attack_map &= ray_opposite_to_king_square;
+			if (possible_pin) {
+				Directions direction = AMBIGIOUS;
+				ray_opposite_to_king_square = generate_ray_opposite_to_kings_square(piece_position, opponent_sliding_pieces, piece_mask, direction);
+				if (is_discovered_check(opponent_pieces, direction, ray_opposite_to_king_square))
+					rook_attack_map &= ray_opposite_to_king_square;
+			}
+
 			if (Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::KNIGHT_CHECK) & rook_attack_map)
 				rook_attack_map &= bitmask((Positions)Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::ATTACKER_POSITION));
 			while (rook_attack_map) {
@@ -333,7 +343,7 @@ void Player::generate_rook_moves(uint64_t piece_bitboard, uint64_t opponent_stat
 	}
 }
 
-void Player::generate_queen_moves(uint64_t piece_bitboard, uint64_t opponent_state, uint64_t opponent_attacks, unsigned int check_flags, uint64_t attackers_ray, uint64_t kings_ray, uint64_t opponent_sliding_pieces)
+void Player::generate_queen_moves(uint64_t piece_bitboard, uint64_t opponent_state, uint64_t opponent_attacks, unsigned int check_flags, uint64_t attackers_ray, uint64_t kings_ray, uint64_t opponent_sliding_pieces, uint64_t * opponent_pieces)
 {
 	while (piece_bitboard) {
 		Positions piece_position = (Positions)get_least_bit_index(piece_bitboard);
@@ -346,10 +356,13 @@ void Player::generate_queen_moves(uint64_t piece_bitboard, uint64_t opponent_sta
 			queen_attack_map &= bitmask((Positions)Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::ATTACKER_POSITION));
 		if (queen_attack_map) {
 			bool possible_pin = kings_ray & bitmask(piece_position);
-			if (possible_pin)
-				ray_opposite_to_king_square = generate_ray_opposite_to_kings_square(piece_position, opponent_sliding_pieces, piece_mask);
-			if (ray_opposite_to_king_square & opponent_sliding_pieces)
-				queen_attack_map &= ray_opposite_to_king_square;
+			if (possible_pin) {
+				Directions direction = AMBIGIOUS;
+				ray_opposite_to_king_square = generate_ray_opposite_to_kings_square(piece_position, opponent_sliding_pieces, piece_mask, direction);
+				if (is_discovered_check(opponent_pieces, direction, ray_opposite_to_king_square))
+					queen_attack_map &= ray_opposite_to_king_square;
+			}
+
 			if (Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::KNIGHT_CHECK) & queen_attack_map)
 				queen_attack_map &= bitmask((Positions)Move::decode_check_flag(check_flags, CHECK_DECODE_ATTRIBUTES::ATTACKER_POSITION));
 			while (queen_attack_map) {
@@ -363,7 +376,7 @@ void Player::generate_queen_moves(uint64_t piece_bitboard, uint64_t opponent_sta
 	}
 }
 
-void Player::generate_king_moves(uint64_t piece_bitboard, uint64_t opponent_state, uint64_t opponent_attacks, unsigned int check_flags, uint64_t attackers_ray, uint64_t kings_ray, uint64_t opponent_sliding_pieces)
+void Player::generate_king_moves(uint64_t piece_bitboard, uint64_t opponent_state, uint64_t opponent_attacks, unsigned int check_flags, uint64_t attackers_ray, uint64_t kings_ray, uint64_t opponent_sliding_pieces, uint64_t * opponent_pieces)
 {
 
 	while (piece_bitboard) {
@@ -577,7 +590,7 @@ uint64_t Player::get_piece_attacks(PieceName piece_name, Positions piece_positio
 	}
 }
 
-uint64_t Player::generate_ray_opposite_to_kings_square(Positions piece_position, uint64_t opponent_sliding_pieces, uint64_t piece_bitmask)
+uint64_t Player::generate_ray_opposite_to_kings_square(Positions piece_position, uint64_t opponent_sliding_pieces, uint64_t piece_bitmask, Directions & direction)
 {
 	Positions king_square = (Positions)get_least_bit_index(this->player_pieces_state[KING]);
 
@@ -597,6 +610,7 @@ uint64_t Player::generate_ray_opposite_to_kings_square(Positions piece_position,
 			square += 8 * direction;
 			ray_mask = bitmask(square);
 		}
+		direction = STRAIGHT;
 	}
 	else if (delta_rank == 0) {
 		int direction = (delta_file > 0) ? -1 : 1;
@@ -611,6 +625,7 @@ uint64_t Player::generate_ray_opposite_to_kings_square(Positions piece_position,
 			square += direction;
 			ray_mask = bitmask(square);
 		}
+		direction = STRAIGHT;
 	}
 	else if (abs(delta_file) == abs(delta_rank)) {
 		int file_direction = (delta_file > 0) ? -1 : 1;
@@ -639,8 +654,27 @@ uint64_t Player::generate_ray_opposite_to_kings_square(Positions piece_position,
 			square += 8 * rank_direction + file_direction;
 			ray_mask = bitmask(square);
 		}
+		direction = DIAGONAL;
 	}
 	return piece_ray;
+}
+
+bool Player::is_discovered_check(uint64_t * opponent_pieces, Directions direction, uint64_t ray_opposite_to_king_square)
+{
+	switch (direction)
+	{
+	case DIAGONAL:
+	{
+		uint64_t opponent_sliding_pieces = opponent_pieces[BISHOP] | opponent_pieces[QUEEN];
+		return ray_opposite_to_king_square & opponent_sliding_pieces;
+	}
+	case STRAIGHT:
+	{
+		uint64_t opponent_sliding_pieces = opponent_pieces[ROOK] | opponent_pieces[QUEEN];
+		return ray_opposite_to_king_square & opponent_sliding_pieces;
+	}
+	}
+	return false;
 }
 
 uint64_t Player::get_player_state()

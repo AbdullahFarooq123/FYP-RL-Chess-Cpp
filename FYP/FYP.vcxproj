@@ -152,6 +152,9 @@
     <ClInclude Include="Player_state.h" />
     <ClInclude Include="pre_calculation_utilities.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

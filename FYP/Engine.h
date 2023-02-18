@@ -10,6 +10,8 @@ public:
 	Engine(string fen_string=Fen_utility::start_pos);
 	~Engine();
 	void run();
+	void run_from_pgn(vector<string> game);
+
 protected:
 	Player* white_player;
 	Player* black_player;
@@ -22,5 +24,7 @@ protected:
 	void unmake_move();
 	bool find_move(string move, uint32_t& move_found, Player* current_player);
 	bool is_game_over(Player* current_player, Player* opponent_player);
+	bool parse_pgn_move(string move, uint32_t &return_move, Player* current_player);
+	void run_pgn();
 };
 

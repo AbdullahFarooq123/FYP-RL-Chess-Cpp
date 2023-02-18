@@ -1,0 +1,150 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="FullSignature">
+  <Class Name="Player">
+    <Position X="0.5" Y="0.75" Width="12.25" />
+    <AssociationLine Name="player_side" Type="Side">
+      <MemberNameLabel ManuallyPlaced="true" ManuallySized="true">
+        <Position X="-0.564" Y="2.773" Height="0.177" Width="1.362" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AQmEgAAAAEAkAgABiCAYAAIAQAAAMAhpgQQkAQAADBg=</HashCode>
+      <FileName>Player.h</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="moves" />
+      <Field Name="player_side" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Move">
+    <Position X="14.25" Y="0.75" Width="12.75" />
+    <TypeIdentifier>
+      <HashCode>CAAAAAQCAIAAAAAAQFAAAEAQRgEgAAAAAEIAAABAAAA=</HashCode>
+      <FileName>Move.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Iterator">
+    <Position X="20" Y="5.5" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAAAACAAAAAAAAAAQAAAAQAAAAAAAEAAAAAgAAAAAAA=</HashCode>
+      <FileName>Iterator.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="pgn_utilities">
+    <Position X="0.5" Y="9.75" Width="3" />
+    <TypeIdentifier>
+      <HashCode>BAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAggAAAAAAAAA=</HashCode>
+      <FileName>pgn_utilities.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Fen_utility">
+    <Position X="3.75" Y="9.75" Width="3.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEoAAARAAAIAAAAAIKIgAQAAAgEAAAAAAIDAAEA=</HashCode>
+      <FileName>Fen_utility.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Player_state">
+    <Position X="7.75" Y="9.75" Width="7" />
+    <TypeIdentifier>
+      <HashCode>ASAAAAAAAAAAAgAAiAAAAAAAAAAAAAAAAAAAAAACAAA=</HashCode>
+      <FileName>Player_state.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Game_state">
+    <Position X="7.75" Y="13" Width="7.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAQAAAAAAAABAAAAAAAAAAAAAAgAAAAAgAQBAAA=</HashCode>
+      <FileName>Game_state.h</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="black_state" />
+      <Field Name="white_state" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Engine">
+    <Position X="27.25" Y="0.75" Width="6" />
+    <AssociationLine Name="black_player" Type="Player">
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="-24.94" Y="0.13" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <AssociationLine Name="white_player" Type="Player">
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="-18.718" Y="0.083" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAgAAAAQAAAABAAAAAAEAEACAEAigBAAAEAAAAAA=</HashCode>
+      <FileName>Engine.h</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="black_player" />
+      <Field Name="white_player" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Debug_utilities">
+    <Position X="28.25" Y="5.25" Width="4" />
+    <TypeIdentifier>
+      <HashCode>AIIhAAIAAIQCAAAEECCABAAAAAAAACAEAgABAAAAIAA=</HashCode>
+      <FileName>Debug_utilities.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Enum Name="MOVE_DECODE_ATTRIBUTES">
+    <Position X="18" Y="5.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAgAQAAAEAAAEUAAAAAAAAACAAAAAQAAAAA=</HashCode>
+      <FileName>Move.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="CHECK_DECODE_ATTRIBUTES">
+    <Position X="16" Y="5.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>CAAAABAAAAAAAAAABAAAAAAAAAAAAAAAAACAAgAAAIA=</HashCode>
+      <FileName>Move.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="CASTLE_DECODE_ATTRIBUTES">
+    <Position X="14.25" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAAAAAAAAAAIQAAAAAAAgAAAAAAAACAACAAAA=</HashCode>
+      <FileName>Move.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="PieceName">
+    <Position X="20" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQAAAgAAAABAAQAAAAAAAAAAAAAAAAAAAgBAAAg=</HashCode>
+      <FileName>attribute_utilities.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="Side">
+    <Position X="13" Y="8.25" Width="1.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAAAAAAIAAAA=</HashCode>
+      <FileName>attribute_utilities.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="Edge">
+    <Position X="14.5" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAgAAAEAAAAAAIAAAAAAgAAAAAAAAAAA=</HashCode>
+      <FileName>attribute_utilities.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="Positions">
+    <Position X="33.5" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>sA8AAAAAAAAE+wAAAAAAAAAA36L9PgCAb5BgHwDAN0g=</HashCode>
+      <FileName>attribute_utilities.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="Piece">
+    <Position X="16.25" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAkWABAJFgAQA=</HashCode>
+      <FileName>attribute_utilities.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="8.77" />
+</ClassDiagram>

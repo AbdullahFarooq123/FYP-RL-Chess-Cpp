@@ -16,6 +16,7 @@ public:
 	void print_board_for_fen();
 	void print_bitboard_for_fen();
 	void print_bitboard_for_piece(PieceName name);
+	void pgn_run_on();
 
 private:
 	std::unordered_map<std::string, int> move_generations;

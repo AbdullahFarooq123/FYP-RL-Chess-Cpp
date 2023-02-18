@@ -38,7 +38,7 @@ void Engine::run()
 {
 	
 	while (true) {
-		printAsciiBitboard(this->board_state, *white_player, *black_player);
+		printAsciiBitboard(this->board_state, *white_player, *black_player, true, white_turn);
 		Player* current_player = this->white_turn ? white_player : black_player;
 		Player* opponent_player = !this->white_turn ? white_player : black_player;
 		current_player->generate_moves();
@@ -157,7 +157,7 @@ bool Engine::find_move(string move, uint32_t & move_found, Player * current_play
 {
 	if (!pgn_utilities::decode_pgn(move)) return false;
 	move_found = current_player->get_moves().get_pgn_moves()[move];
-	return true;
+	return move_found!=0;
 }
 
 bool Engine::is_game_over(Player* current_player, Player* opponent_player)
@@ -204,4 +204,181 @@ bool Engine::is_game_over(Player* current_player, Player* opponent_player)
 	}
 
 	return false;
+}
+
+bool Engine::parse_pgn_move(string move, uint32_t& return_move, Player* current_player)
+{
+	std::string pieces = "PNBRQK";
+	std::string files = "abcdefgh";
+	std::string ranks = "1234567";
+
+	PieceName piece_to_move = NONE;
+	PieceName promotion_piece_name = NONE;
+
+	Positions source_square = OUT_OF_BOUNDS;
+	Positions target_square = OUT_OF_BOUNDS;
+	int file = -1;
+	int rank = -1;
+	if ('O' == move[0]) {
+		source_square = this->white_turn ? e1 : e8;
+		piece_to_move = KING;
+		if (move == "O-O") 
+			target_square = this->white_turn ? g1 : g8;
+		else if (move == "O-O-O") 
+			target_square = this->white_turn ? c1 : c8;
+		else {
+			std::cout << "Invalid move!" << std::endl;
+			return false;
+		}
+		move = "";
+	}
+	else {
+		move.erase(remove(move.begin(), move.end(), 'x'), move.end());
+		move.erase(remove(move.begin(), move.end(), '#'), move.end());
+		move.erase(remove(move.begin(), move.end(), '+'), move.end());
+		if (move.find('=') != string::npos&&move.length()==4) {
+			piece_to_move = PAWN;
+			int promotion_piece_index = pieces.find(move[3]);
+			if (promotion_piece_index != string::npos) {
+
+			}
+		}
+		if (move.length() == 2) {
+			piece_to_move = PAWN;
+		}
+		else if (move.length() == 3) {
+			int index_of_piece = pieces.find(move[0]);
+			if (index_of_piece != std::string::npos) {
+				piece_to_move = (PieceName)index_of_piece;
+				move = move.substr(1, move.length());
+			}
+			else {
+				int index_of_file = files.find(move[0]);
+				if (index_of_file != std::string::npos) {
+					piece_to_move = PAWN;
+					file = index_of_file;
+					move = move.substr(1, move.length());
+				}
+				else {
+					std::cout << "Invalid move!" << std::endl;
+					return false;
+				}
+			}
+		}
+		else if (move.length() == 4) {
+			int index_of_piece = pieces.find(move[0]);
+			if (index_of_piece != std::string::npos) {
+				piece_to_move = (PieceName)index_of_piece;
+				move = move.substr(1, move.length());
+			}
+			else {
+				std::cout << "Invalid move!" << std::endl;
+				return false;
+			}
+			int index_of_file = files.find(move[0]);
+			if (index_of_file != std::string::npos) {
+				file = index_of_file;
+				move = move.substr(1, move.length());
+			}
+			else {
+				int index_of_rank = ranks.find(move[0]);
+				if (index_of_rank != std::string::npos) {
+					rank = index_of_rank+1;
+					move = move.substr(1, move.length());
+				}
+			}
+		}
+		int index_of_target_squre = std::distance(str_positions, std::find(str_positions, str_positions + 64, move.substr(0, 2)));
+		if (index_of_target_squre != 64)
+			target_square = (Positions)index_of_target_squre;
+		else {
+			cout << "Invalid Move!" << endl;
+			return false;
+		}
+	}
+	for (uint32_t move : current_player->get_moves()) {
+		PieceName current_piecename = (PieceName)Move::decode_move(move, MOVE_DECODE_ATTRIBUTES::PIECE_NAME);
+		if (current_piecename == piece_to_move) {
+			bool this_move = false;
+			Positions my_target = (Positions)Move::decode_move(move, MOVE_DECODE_ATTRIBUTES::TARGET_SQUARE);
+			if (source_square == OUT_OF_BOUNDS&&file!=-1) {
+				int current_file = Move::decode_move(move, MOVE_DECODE_ATTRIBUTES::SOURCE_SQUARE)%8;
+				if (current_file == file && my_target == target_square)
+					this_move = true;
+			}
+			else if (source_square == OUT_OF_BOUNDS && rank != -1) {
+				Positions source_square = (Positions)Move::decode_move(move, MOVE_DECODE_ATTRIBUTES::SOURCE_SQUARE);
+				int current_rank =  8-(source_square / 8);
+				if (current_rank == rank && my_target == target_square)
+					this_move = true;
+			}
+			else if (source_square!=OUT_OF_BOUNDS){
+				Positions my_source = (Positions)Move::decode_move(move, MOVE_DECODE_ATTRIBUTES::SOURCE_SQUARE);
+				if (my_target == target_square && my_source == source_square) {
+					this_move = true;
+				}
+			}
+			else if (my_target == target_square)
+					this_move = true;
+			if (this_move) {
+				return_move = move;
+				return true;
+			}
+		}
+	}
+	cout << "Move " << move << " not found!" <<endl;
+	return false;
+}
+
+void Engine::run_pgn()
+{
+	string moves[] = { "e4","c6","c4","d5","exd5","cxd5","cxd5","Nf6","Nc3","g6","Bc4","Bg7","Nf3","O-O","O-O","Nbd7","d3","Nb6","Qb3","Bf5","Re1","h6","a4","Nfd7","Be3","a5","Nd4","Nxc4","dxc4","Nc5","Qa3","Nd3","Nxf5","gxf5","Red1","Ne5","b3","Ng4","Qc1","f4","Bd4","Bxd4","Rxd4","e5","Rd2","Qh4","h3","Nf6","Qe1","Qg5","Ne4","Nxe4","Qxe4","f5","Qxe5","Rae8","h4","Qxh4","Qc3","Re4","d6","Qg5","f3","Re3","Qxa5","Rfe8","Rf2","Qf6","Rd1","R3e5","d7"
+	};
+	int move_index = 0;
+	while (true) {
+		printAsciiBitboard(this->board_state, *white_player, *black_player, false, white_turn);
+		Player* current_player = this->white_turn ? white_player : black_player;
+		Player* opponent_player = !this->white_turn ? white_player : black_player;
+		current_player->generate_moves();
+		if (is_game_over(current_player, opponent_player)||move_index==(sizeof(moves)/sizeof(moves[0])))
+			break;
+		//current_player->print_moves();
+		cout << "MOVE : " << moves[move_index] << endl;
+		getchar();
+		bool correct_move = false;
+		uint32_t move;
+		while (!parse_pgn_move(moves[move_index++], move, current_player));
+		make_move(move,current_player,opponent_player);
+		white_turn = !white_turn;
+		system("cls");
+	}
+}
+
+void Engine::run_from_pgn(vector<string> game)
+{
+	int move_index = 0;
+	while (true) {
+		Player* current_player = this->white_turn ? white_player : black_player;
+		Player* opponent_player = !this->white_turn ? white_player : black_player;
+		current_player->generate_moves();
+		if (is_game_over(current_player, opponent_player) || (move_index==game.size()))
+			break;
+		bool correct_move = false;
+		uint32_t move;
+		//printAsciiBitboard(this->board_state, *white_player, *black_player, false, white_turn);
+		//cout << "MOVE : " << game[move_index] << endl;
+		//getchar();
+		//system("cls");
+		while (!parse_pgn_move(game[move_index], move, current_player)) {
+			printAsciiBitboard(this->board_state, *white_player, *black_player, false, white_turn);
+			current_player->print_moves();
+			cout << "MOVE : " << game[move_index] << endl;
+			getchar();
+			system("cls");
+		}
+		move_index++;
+		make_move(move, current_player, opponent_player);
+		white_turn = !white_turn;
+	}
+	cout << "GAME COMPLETED!" << endl;
 }
