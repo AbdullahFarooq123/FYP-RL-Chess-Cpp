@@ -21,12 +21,12 @@ public:
 	static string tricky_castle_move_pos_2;
 	Fen_utility(std::string fen);
 	~Fen_utility();
-	uint64_t getBitboard(Side side=Side::BOTH,Piece piece=Piece::ALL);
-	Side get_player_turn();
+	uint64_t getBitboard(Player_Side side=Player_Side::BOTH,Piece piece=Piece::ALL);
+	Player_Side get_player_turn();
 	int get_enpassant();
 	int get_castle_rights();
 	static string get_fen(uint64_t bitboard, uint64_t* white_pieces_state, uint64_t* black_pieces_state);
 private:
 	std::string fen;
-	bool getSideAndPieceBitmap(Side, Piece, char);
+	bool getSideAndPieceBitmap(Player_Side, Piece, char);
 };

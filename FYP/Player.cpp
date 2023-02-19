@@ -2,7 +2,7 @@
 #include "game_pretty.h"
 #include "pgn_utilities.h"
 
-Player::Player(Side player_side, uint64_t* board_state, uint64_t player_state, uint64_t player_pieces_state[6], int enpassant_square, uint32_t* previous_move, unsigned int castle_rights)
+Player::Player(Player_Side player_side, uint64_t* board_state, uint64_t player_state, uint64_t player_pieces_state[6], int enpassant_square, uint32_t* previous_move, unsigned int castle_rights)
 {
 	this->player_side = player_side;
 	this->board_state = board_state;
@@ -467,7 +467,7 @@ uint64_t Player::get_opponent_attacks(unsigned int& check_flags, uint64_t * oppo
 {
 
 	uint64_t opponent_attacks = 0ull;
-	Side opponent_side = (Side)!this->player_side;
+	Player_Side opponent_side = (Player_Side)!this->player_side;
 	uint64_t player_king_mask = this->player_pieces_state[KING];
 	bool knight_attack = false;
 	unsigned int attacker_position = Positions::OUT_OF_BOUNDS;
@@ -687,7 +687,7 @@ uint64_t Player::generate_ray_opposite_to_kings_square(Positions piece_position,
 			square += 8 * rank_direction + file_direction;
 			ray_mask = bitmask(square);
 		}
-		ray_direction = DIAGONAL;
+		ray_direction = SLAINT;
 	}
 	return piece_ray;
 }
@@ -731,7 +731,7 @@ bool Player::is_discovered_check(uint64_t * opponent_pieces, Directions directio
 {
 	switch (direction)
 	{
-	case DIAGONAL:
+	case SLAINT:
 	{
 		uint64_t opponent_sliding_pieces = opponent_pieces[BISHOP] | opponent_pieces[QUEEN];
 		return ray_opposite_to_king_square & opponent_sliding_pieces;

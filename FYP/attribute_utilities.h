@@ -9,12 +9,12 @@ enum PieceName {
 	KING,
 	NONE
 };
-enum Side {
+enum Player_Side {
 	WHITE = 1,
 	BLACK = 0,
 	BOTH = 2
 };
-enum Edge {
+enum Board_Edge {
 	LEFT,
 	RIGHT,
 	B_RIGHT,
@@ -37,7 +37,7 @@ enum Piece {
 	ALL = 0
 };
 enum Directions {
-	DIAGONAL,
+	SLAINT,
 	STRAIGHT,
 	AMBIGIOUS
 };

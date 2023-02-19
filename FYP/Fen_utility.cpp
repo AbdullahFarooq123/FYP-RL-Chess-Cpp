@@ -23,7 +23,7 @@ Fen_utility::~Fen_utility()
 {
 }
 
-uint64_t Fen_utility::getBitboard(Side side, Piece piece)
+uint64_t Fen_utility::getBitboard(Player_Side side, Piece piece)
 {
 	string piece_fen = split(fen, ' ')[0];
 	uint64_t bitboard = 0ull;
@@ -45,10 +45,10 @@ uint64_t Fen_utility::getBitboard(Side side, Piece piece)
 	return bitboard;
 }
 
-Side Fen_utility::get_player_turn()
+Player_Side Fen_utility::get_player_turn()
 {
 	char side = tolower(split(fen, ' ')[1][0]);
-	return side == 'b' ? Side::BLACK : Side::WHITE;
+	return side == 'b' ? Player_Side::BLACK : Player_Side::WHITE;
 }
 
 int Fen_utility::get_enpassant()
@@ -78,16 +78,16 @@ string Fen_utility::get_fen(uint64_t bitboard, uint64_t* white_pieces_state, uin
 	return string();
 }
 
-bool Fen_utility::getSideAndPieceBitmap(Side side, Piece piece, char fen_char)
+bool Fen_utility::getSideAndPieceBitmap(Player_Side side, Piece piece, char fen_char)
 {
-	if (side != Side::BOTH || piece != Piece::ALL) {
-		if (side == Side::WHITE) {
+	if (side != Player_Side::BOTH || piece != Piece::ALL) {
+		if (side == Player_Side::WHITE) {
 			if (piece == Piece::ALL && isupper(fen_char))
 				return true;
 			else if ((piece != Piece::ALL) && ((int)fen_char == (int)piece))
 				return true;
 		}
-		else if (side == Side::BLACK) {
+		else if (side == Player_Side::BLACK) {
 			if (piece == Piece::ALL && islower(fen_char))
 				return true;
 			else if ((piece != Piece::ALL) && ((int)fen_char == (int)piece))

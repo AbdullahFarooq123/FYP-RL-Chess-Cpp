@@ -8,8 +8,8 @@ Engine::Engine(string fen_string)
 	Fen_utility fen = Fen_utility(fen_string);
 	this->board_state = fen.getBitboard();
 	int enpassant_position = fen.get_enpassant();
-	uint64_t white_state = fen.getBitboard(Side::WHITE);
-	uint64_t black_state = fen.getBitboard(Side::BLACK);
+	uint64_t white_state = fen.getBitboard(Player_Side::WHITE);
+	uint64_t black_state = fen.getBitboard(Player_Side::BLACK);
 	int castle_rights = fen.get_castle_rights();
 	this->previous_move = 0;
 	this->white_turn = fen.get_player_turn();
@@ -18,11 +18,11 @@ Engine::Engine(string fen_string)
 	Piece white_pieces[6] = { P,N,B,R,Q,K };
 	Piece black_pieces[6] = { p,n,b,r,q,k };
 	for (int piece = 0; piece < 6; piece++) {
-		white_player_bitboards[piece] = fen.getBitboard(Side::WHITE, white_pieces[piece]);
-		black_player_bitboards[piece] = fen.getBitboard(Side::BLACK, black_pieces[piece]);
+		white_player_bitboards[piece] = fen.getBitboard(Player_Side::WHITE, white_pieces[piece]);
+		black_player_bitboards[piece] = fen.getBitboard(Player_Side::BLACK, black_pieces[piece]);
 	}
-	white_player = new Player(Side::WHITE, &this->board_state, white_state, white_player_bitboards, white_turn ? enpassant_position : OUT_OF_BOUNDS, &this->previous_move, castle_rights);
-	black_player = new Player(Side::BLACK, &this->board_state, black_state, black_player_bitboards, !white_turn ? enpassant_position : OUT_OF_BOUNDS, &this->previous_move, castle_rights);
+	white_player = new Player(Player_Side::WHITE, &this->board_state, white_state, white_player_bitboards, white_turn ? enpassant_position : OUT_OF_BOUNDS, &this->previous_move, castle_rights);
+	black_player = new Player(Player_Side::BLACK, &this->board_state, black_state, black_player_bitboards, !white_turn ? enpassant_position : OUT_OF_BOUNDS, &this->previous_move, castle_rights);
 	white_player->set_opponent_player(black_player);
 	black_player->set_opponent_player(white_player);
 	init_precalculation_utilities();

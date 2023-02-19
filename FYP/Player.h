@@ -6,7 +6,7 @@ using namespace std;
 class Player
 {
 public:
-	Player(Side player_side, uint64_t *board_state, uint64_t player_state, uint64_t player_pieces_state[6], int enpassant_square, uint32_t* previous_move, unsigned int castle_rights);
+	Player(Player_Side player_side, uint64_t *board_state, uint64_t player_state, uint64_t player_pieces_state[6], int enpassant_square, uint32_t* previous_move, unsigned int castle_rights);
 	~Player();
 	void generate_moves();
 	void make_move(uint32_t move);
@@ -25,7 +25,7 @@ public:
 	void remove_piece_from_player_state(uint64_t mask);
 	bool is_player_in_check();
 private:
-	Side player_side;
+	Player_Side player_side;
 	unsigned int castling_rights;
 	uint64_t* board_state;
 	uint32_t* previous_move;
