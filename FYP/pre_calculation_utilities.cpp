@@ -1,5 +1,7 @@
 #include "pre_calculation_utilities.h"
 void init_precalculation_utilities() {
+	init_squares();
+	init_directional_rays();
 	//init_pawn_attacks();
 	//init_knight_attacks();
 	//init_king_attacks();
@@ -148,6 +150,8 @@ uint64_t bishop_attacks[64] = {
 	0b0000000001000000001000000001000000001000000001000000001000000000
 };
 uint64_t bishop_attacks_table[64][512];
+uint64_t square_bitmask[64];
+uint64_t directional_rays[9][64];
 int count_set_bits(uint64_t bitboard) {
 	int count = 0;
 	while (bitboard) {
@@ -162,6 +166,55 @@ int get_least_bit_index(uint64_t bitboard) {
 	else
 		return log2(bitboard & -(long long)bitboard);
 }
+void init_squares() {
+	for (int position = a8; position <= h1; position++)
+		square_bitmask[position] = (bitmask(position));
+}
+void init_directional_rays() {
+	for (int direction = NORTH; direction <= NOT_ALLIGNED; direction++) {
+		for (int position = a8; position <= h1; position++) {
+			uint64_t my_position = bitmask(position);
+			uint64_t ray = 0ull;
+			switch (direction)
+			{
+			case NORTH:
+				while (my_position & ~top_edge)
+					ray |= (my_position >>= 8);
+				break;
+			case NORTH_EAST:
+				while (my_position & ~(top_edge | right_edge))
+					ray |= (my_position >>= 7);
+				break;
+			case EAST:
+				while (my_position & ~right_edge)
+					ray |= (my_position <<= 1);
+				break;
+			case SOUTH_EAST:
+				while (my_position & ~(bottom_edge | right_edge))
+					ray |= (my_position <<= 9);
+				break;
+			case SOUTH:
+				while (my_position & ~bottom_edge)
+					ray |= (my_position <<= 8);
+				break;
+			case SOUTH_WEST:
+				while (my_position & ~(bottom_edge | left_edge))
+					ray |= (my_position <<= 7);
+				break;
+			case WEST:
+				while (my_position & ~left_edge)
+					ray |= (my_position >>= 1);
+				break;
+			case NORTH_WEST:
+				while (my_position & ~(top_edge | left_edge))
+					ray |= (my_position >>= 9);
+				break;
+			}
+			directional_rays[direction][position] = ray;
+		}
+	}
+}
+
 uint64_t setOccupancy(int index, int attacksCount, uint64_t pieceAttacksMap) {
 	uint64_t occupancy = 0ull;
 	for (int i = 0; i < attacksCount; i++) {
@@ -175,8 +228,6 @@ uint64_t setOccupancy(int index, int attacksCount, uint64_t pieceAttacksMap) {
 }
 void init_slider_attacks(bool bishop) {
 	for (int i = a8; i <= h1; i++) {
-		//bishop_attacks[i] = get_bishop_attak_mask_exc_ends(bitmask(i));
-		//rook_attacks[i] = get_rook_attak_mask_exc_ends(bitmask(i));
 		uint64_t attack_mask = bishop?bishop_attacks[i] : rook_attacks[i];
 		int relevent_bits = count_set_bits(attack_mask);
 		int occupancy_indices = (1 << relevent_bits);
@@ -355,8 +406,8 @@ uint64_t rook_magic_number[64] = {
 void init_magic_numbers() {
 	for (int i = a8; i <= h1; i++)
 		rook_magic_number[i] = find_magic_number(bitmask(i), rook_attack_count[i], false);
-	for (int i = a8; i <= h1; i++)
-		bishop_magic_number[i] = find_magic_number(bitmask(i), bishop_attack_count[i], true);
+	//for (int i = a8; i <= h1; i++)
+	//	bishop_magic_number[i] = find_magic_number(bitmask(i), bishop_attack_count[i], true);
 }
 uint64_t generate_magic_number() {
 	return get_64b_rand_no()& get_64b_rand_no()& get_64b_rand_no();
@@ -374,12 +425,17 @@ uint64_t find_magic_number(uint64_t piece_position, int relevent_occupancy_bits,
 	for (int random_count = 0; random_count < 100000000; random_count++) {
 		uint64_t magic_number = generate_magic_number();
 		uint64_t num_to_multiply = 0xFF00000000000000;
-		if (count_set_bits((attack_mask * magic_number) & num_to_multiply) < 6)continue;
+		if (count_set_bits((attack_mask * magic_number) & num_to_multiply) < 6){
+			std::cout << "CONTINUE" << std::endl;
+			continue;
+		}
 		memset(used_attacks, 0ULL, sizeof(used_attacks));
 		int index, fail;
 		// test magic index loop
 		for (index = 0, fail = 0; !fail && index < occupancy_indicies; index++) {
 			int magic_index = (int)((occupancies[index] * magic_number) >> (64 - relevent_occupancy_bits));
+			uint64_t v1 = occupancies[index] * magic_number;
+			uint64_t v3 = 64-relevent_occupancy_bits;
 			if (used_attacks[magic_index] == 0ull)
 				used_attacks[magic_index] = attacks[index];
 			else if (used_attacks[magic_index] != attacks[index])
@@ -910,8 +966,13 @@ uint64_t get_bishop_attak_mask_inc_end_blockers(uint64_t piecePosition, uint64_t
 	return attack_mask;
 }
 uint64_t get_bishop_attacks(int position, uint64_t occupancy) {
+	uint64_t b = bishop_magic_number[position];
 	occupancy &= bishop_attacks[position];
 	occupancy *= bishop_magic_number[position];
-	occupancy >>= (64 - bishop_attack_count[position]);
+	occupancy >>= (64l - bishop_attack_count[position]);
 	return bishop_attacks_table[position][occupancy];
+}
+
+uint64_t get_queen_attacks(int position, uint64_t blockers) {
+	return get_rook_attacks(position, blockers) | get_bishop_attacks(position, blockers);
 }

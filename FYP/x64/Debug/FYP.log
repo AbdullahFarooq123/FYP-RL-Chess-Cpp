@@ -1,2 +1,9 @@
-﻿  main.cpp
+﻿  pre_calculation_utilities.cpp
+D:\GitHub\FYP-RL-Chess-Cpp\FYP\pre_calculation_utilities.cpp(167): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
+D:\GitHub\FYP-RL-Chess-Cpp\FYP\pre_calculation_utilities.cpp(237): warning C4244: 'initializing': conversion from 'uint64_t' to 'int', possible loss of data
+D:\GitHub\FYP-RL-Chess-Cpp\FYP\pre_calculation_utilities.cpp(242): warning C4244: 'initializing': conversion from 'uint64_t' to 'int', possible loss of data
+D:\GitHub\FYP-RL-Chess-Cpp\FYP\pre_calculation_utilities.cpp(846): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+D:\GitHub\FYP-RL-Chess-Cpp\FYP\pre_calculation_utilities.cpp(864): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+D:\GitHub\FYP-RL-Chess-Cpp\FYP\pre_calculation_utilities.cpp(922): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+D:\GitHub\FYP-RL-Chess-Cpp\FYP\pre_calculation_utilities.cpp(940): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
   FYP.vcxproj -> D:\GitHub\FYP-RL-Chess-Cpp\x64\Debug\FYP.exe

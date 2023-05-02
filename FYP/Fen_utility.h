@@ -8,6 +8,13 @@ using namespace std;
 class Fen_utility
 {
 public:
+	Fen_utility(std::string fen);
+	~Fen_utility();
+	uint64_t getBitboard(Player_Side side=Player_Side::BOTH,Piece piece=Piece::ALL);
+	Player_Side get_player_turn();
+	int get_enpassant();
+	uint8_t get_castle_rights();
+public:
 	static string start_pos;
 	static string kiwipete;
 	static string check_mate;
@@ -17,15 +24,7 @@ public:
 	static string insufficient_material_both_bishop;
 	static string insufficient_material_both_knight;
 	static string insufficient_material_kings;
-	static string tricky_castle_move_pos_1;
-	static string tricky_castle_move_pos_2;
-	Fen_utility(std::string fen);
-	~Fen_utility();
-	uint64_t getBitboard(Player_Side side=Player_Side::BOTH,Piece piece=Piece::ALL);
-	Player_Side get_player_turn();
-	int get_enpassant();
-	int get_castle_rights();
-	static string get_fen(uint64_t bitboard, uint64_t* white_pieces_state, uint64_t* black_pieces_state);
+	static unordered_map<string, int> move_generation_test_cases;
 private:
 	std::string fen;
 	bool getSideAndPieceBitmap(Player_Side, Piece, char);

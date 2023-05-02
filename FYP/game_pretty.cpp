@@ -57,16 +57,14 @@ void printAsciiBitboard(uint64_t bitboard, Player white_player,Player black_play
 		cout << (char)i << "  ";
 	cout << endl << endl;
 }
-uint64_t getBitboard(int file, int rank) {
-	uint64_t board = 0ull;
-	for (int i = 0; i < 8; i++) {
-		for (int j = 0; j < 8; j++) {
-			if (j == (7 - file) || i == (7 - rank))
-				board |= (1ull << i * 8 + j);
-		}
-	}
-	return board;
-}
+//uint64_t getBitboard(int file, int rank) {
+//	uint64_t board = 0ull;
+//	for (int i = 0; i < 8; i++)
+//		for (int j = 0; j < 8; j++)
+//			if (j == (7 - file) || i == (7 - rank))
+//				board |= (1ull << i * 8 + j);
+//	return board;
+//}
 
 string add_str_padding(string value, int width)
 {

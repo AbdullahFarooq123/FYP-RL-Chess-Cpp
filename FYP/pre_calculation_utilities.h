@@ -20,10 +20,16 @@ const uint64_t black_queen_side_castle_occupancy = 0b000000000000000000000000000
 void init_precalculation_utilities();
 
 //*****************General Utilities Templates*******************************
+extern uint64_t square_bitmask[64];
+extern uint64_t directional_rays[9][64];
+//Returns no of set bits in a 64-bit number
 int count_set_bits(uint64_t);
-int get_least_bit_index(uint64_t);
+//Reutrns least significant bit in a 64-bit number
+int get_least_bit_index(uint64_t bitboard);
 uint64_t setOccupancy(int, int, uint64_t);
 void init_slider_attacks(bool);
+void init_squares();
+void init_directional_rays();
 
 //*****************Random Number Generation Templates************************
 extern unsigned int random_state;
@@ -82,4 +88,5 @@ void init_bishop_attack_count();
 uint64_t get_bishop_attak_mask_exc_ends(uint64_t);
 uint64_t get_bishop_attak_mask_inc_end_blockers(uint64_t, uint64_t);
 uint64_t get_bishop_attacks(int, uint64_t);
-
+//*****************Queen Utilities Templates********************************
+uint64_t get_queen_attacks(int position, uint64_t blockers);
